@@ -1,7 +1,7 @@
 'use client';
 
 import Spline from '@splinetool/react-spline';
-import type { Application } from '@splinetool/runtime';
+import type { Application, SPEObject } from '@splinetool/runtime';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 
@@ -13,7 +13,7 @@ export default function HeroCanvas() {
   const scale = useTransform(scrollY, [0, 1000], [1, 0.7]);
 
   const splineRef = useRef<Application | null>(null);
-  const tecladoObjRef = useRef<any>(null);
+  const tecladoObjRef = useRef<SPEObject | null>(null);
   const mousePos = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -49,10 +49,13 @@ export default function HeroCanvas() {
 
   function onLoad(splineApp: Application) {
     splineRef.current = splineApp;
-    tecladoObjRef.current = splineApp.findObjectByName('Keyboard');
+    const keyboard = splineApp.findObjectByName('Keyboard');
+    tecladoObjRef.current = keyboard || null;
 
     if (tecladoObjRef.current) {
-      tecladoObjRef.current.scale.set(0.49, 0.49, 0.49);
+      tecladoObjRef.current.scale.x = 0.49;
+      tecladoObjRef.current.scale.y = 0.49;
+      tecladoObjRef.current.scale.z = 0.49;
 
       tecladoObjRef.current.position.y = 0;
       tecladoObjRef.current.position.x = 200;

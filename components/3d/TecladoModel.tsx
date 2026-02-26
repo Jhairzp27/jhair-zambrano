@@ -9,8 +9,8 @@ export default function TecladoModel(props: ThreeElements['group']) {
   const { scene } = useGLTF('/models/keyboard.splinecode');
 
   useEffect(() => {
-    scene.traverse((child: any) => {
-      if (child.isMesh) {
+    scene.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
         child.material = new THREE.MeshStandardMaterial({
           color: new THREE.Color('#1a1a1a'),
           roughness: 0.2,
