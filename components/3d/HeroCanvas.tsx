@@ -17,34 +17,34 @@ export default function HeroCanvas() {
   const scale = useTransform(scrollY, bp, [1, 0.9, 0.75, 0.5, 0.85]);
 
   // --- 2. 3D ROTATIONS (La Caída Fluida) ---
-  
+
   // EJE X (Cabeceo): 
   // Lo mantenemos simple. Solo se inclina un poco hacia adelante/atrás para dar sensación de peso.
   const rotX = useTransform(scrollY, bp, [
-    0, 
-    0.1, 
-    0, 
-    -0.3, 
+    0,
+    0.1,
+    0,
+    -0.3,
     0.35
   ]);
 
   // EJE Y (El giro de "Llave"): 
   // AHORA ES SUAVE. Pasa de 0 a 90º (Math.PI / 2) a lo largo de 400 píxeles de scroll.
   const rotY = useTransform(scrollY, bp, [
-    0, 
-    0.1, 
-    Math.PI / 2, 
-    Math.PI, 
+    0,
+    0.1,
+    Math.PI / 2,
+    Math.PI,
     Math.PI * 2
   ]);
 
   // EJE Z (El nuevo "Flip" tipo Barrel Roll): 
   // Da un giro lateral completo (360º = -Math.PI * 2) mientras cae, aterrizando perfectamente recto.
   const rotZ = useTransform(scrollY, bp, [
-    0, 
-    -0.1, 
-    -Math.PI * 2, 
-    -Math.PI * 2 - Math.PI / 4, 
+    0,
+    -0.1,
+    -Math.PI * 2,
+    -Math.PI * 2 - Math.PI / 4,
     -Math.PI * 2
   ]);
 
@@ -73,7 +73,7 @@ export default function HeroCanvas() {
 
       const maxRadius = 600;
       let intensity = 1 - (distance / maxRadius);
-      if (intensity < 0) intensity = 0; 
+      if (intensity < 0) intensity = 0;
 
       mousePos.current.x = ((e.clientX / window.innerWidth) * 2 - 1) * intensity;
       mousePos.current.y = (-(e.clientY / window.innerHeight) * 2 + 1) * intensity;
@@ -96,7 +96,11 @@ export default function HeroCanvas() {
     tecladoObjRef.current = keyboard || null;
 
     if (tecladoObjRef.current) {
-      tecladoObjRef.current.scale.set(0.5, 0.5, 0.5);
+
+      tecladoObjRef.current.scale.x = 0.5;
+      tecladoObjRef.current.scale.y = 0.5;
+      tecladoObjRef.current.scale.z = 0.5;
+
       tecladoObjRef.current.position.x = 0;
       tecladoObjRef.current.position.y = 0;
     }
