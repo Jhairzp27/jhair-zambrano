@@ -28,7 +28,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Massive Typography - Pushed to the Bottom Left */}
         <div className="z-20 flex flex-col items-start w-full mix-blend-difference mt-auto">
 
           <h1 className="text-[5rem] md:text-[8rem] lg:text-[11rem] font-bold font-space-grotesk tracking-tighter text-white leading-[0.85] drop-shadow-md">
@@ -51,14 +50,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* --- RESTO DE SECCIONES --- */}
-      <section className="min-h-screen w-full flex items-center justify-center relative z-20 pointer-events-none">
-        <div className="text-center max-w-4xl px-4">
-          <h2 className="text-xs md:text-sm tracking-[0.3em] uppercase text-white/40 mb-8">01. About Me</h2>
-          <h3 className="text-4xl md:text-6xl lg:text-7xl font-space-grotesk text-white mb-8 tracking-tight">Crafting ultimate aesthetics <br /> through deep engineering.</h3>
-          <p className="text-white/50 text-xl font-light leading-relaxed max-w-2xl mx-auto">
-            I architect scalable backend solutions without compromising on the frontend experience. True full-stack engineering is an art form.
-          </p>
+      {/* --- 01. ABOUT ME — 3-column layout: Photo | Keyboard | Text --- */}
+      <section className="min-h-screen w-full flex items-center relative z-20 pointer-events-none overflow-hidden border-t border-white/10">
+        <div className="w-full h-full grid grid-cols-3 items-center gap-0 px-0">
+
+          {/* LEFT COLUMN: Photo placeholder */}
+          <div className="flex items-center justify-center h-full px-10 py-20">
+            <div className="w-full aspect-[3/4] max-w-[280px] rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col items-center justify-end p-6 relative overflow-hidden">
+              {/* Subtle glow behind the photo area */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/[0.04]" />
+              <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 relative z-10">Photo coming soon</span>
+            </div>
+          </div>
+
+          {/* CENTER COLUMN: Empty — the 3D keyboard lands here via the fixed canvas */}
+          <div className="flex items-center justify-center h-full">
+            {/* Intentionally empty: the fixed Spline keyboard floats here on scroll */}
+          </div>
+
+          {/* RIGHT COLUMN: About Me text */}
+          <div className="flex flex-col justify-center px-10 py-20 border-l border-white/10">
+            <h2 className="text-[10px] md:text-xs tracking-[0.3em] uppercase text-white/40 mb-6">01. About Me</h2>
+            <h3 className="text-3xl md:text-4xl lg:text-5xl font-space-grotesk text-white mb-6 tracking-tight leading-tight">
+              Crafting<br />ultimate<br />aesthetics.
+            </h3>
+            <div className="w-8 h-[2px] bg-white/30 mb-6" />
+            <p className="text-white/50 text-base md:text-lg font-light leading-relaxed mb-4">
+              Software Engineering student at EPN, bridging the gap between deep engineering and beautiful digital experiences.
+            </p>
+            <p className="text-white/30 text-sm font-light leading-relaxed">
+              I architect scalable backend solutions without compromising on the frontend. True full-stack engineering is an art form.
+            </p>
+          </div>
+
         </div>
       </section>
 
