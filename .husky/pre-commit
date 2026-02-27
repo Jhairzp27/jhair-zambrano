@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+echo "🔍 Ejecutando Linter y TypeScript antes de hacer commit..."
+
+npm run lint
+
+npx tsc --noEmit
+
+echo "✅ Código limpio. Procediendo con el commit..."
