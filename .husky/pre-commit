@@ -1,6 +1,4 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 echo "🔍 Ejecutando Linter y TypeScript antes de hacer commit..."
 
 npm run lint
