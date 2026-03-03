@@ -18,7 +18,7 @@ export default function Home() {
 
       <HeroCanvas />
 
-      <section className="relative min-h-screen w-full flex flex-col justify-between pt-12 pb-24 px-8 md:px-16 pointer-events-none z-20">
+      <section id="hero" className="relative min-h-screen w-full flex flex-col justify-between pt-12 pb-24 px-8 md:px-16 pointer-events-none z-20">
 
         {/* Top Header Area */}
         <div className="flex justify-between items-start w-full mt-20">
@@ -28,10 +28,10 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="z-20 flex flex-col items-start w-full mix-blend-difference mt-auto">
+        <div className="z-20 flex flex-col items-start w-full mt-auto pointer-events-none">
 
-          <h1 className="text-[5rem] md:text-[8rem] lg:text-[11rem] font-bold font-space-grotesk tracking-tighter text-white leading-[0.85] drop-shadow-md">
-            JHAIR<br />ZAMBRANO
+          <h1 className="text-[5rem] md:text-[8rem] lg:text-[11rem] font-bold font-space-grotesk tracking-tighter text-white leading-[0.85] drop-shadow-2xl">
+            JHAIR<br /> ZAMBRANO
           </h1>
 
           <div className="mt-8 flex flex-col items-start border-l-2 border-white/30 pl-6 max-w-md">
@@ -43,15 +43,17 @@ export default function Home() {
 
         </div>
 
-        {/* Indicador de scroll minimalista - Pushed right */}
-        <div className="absolute bottom-16 right-8 md:right-16 flex flex-col items-center gap-4 text-white/30 text-[10px] tracking-[0.25em] uppercase">
-          <span className="[writing-mode:vertical-rl] rotate-0 mb-2">Scroll to discover</span>
-          <div className="w-[1px] h-16 bg-gradient-to-b from-white/40 to-transparent" />
+        {/* Indicador de scroll minimalista y BRILLANTE */}
+        <div className="absolute bottom-16 right-8 md:right-16 flex flex-col items-center gap-4 text-white text-[10px] tracking-[0.25em] uppercase">
+          <span className="[writing-mode:vertical-rl] rotate-0 mb-2 animate-pulse drop-shadow-[0_0_12px_rgba(255,255,255,0.8)] font-medium">
+            Scroll to discover
+          </span>
+          <div className="w-[2px] h-16 bg-white animate-pulse shadow-[0_0_15px_rgba(255,255,255,0.9)] rounded-full" />
         </div>
       </section>
 
       {/* --- 01. ABOUT ME — 3-column layout: Photo | Keyboard | Text --- */}
-      <section className="min-h-screen w-full flex items-center relative z-20 pointer-events-none overflow-hidden border-t border-white/10">
+      <section id="about" className="min-h-screen w-full flex items-center relative z-20 pointer-events-none overflow-hidden border-t border-white/10 scroll-m-0">
         <div className="w-full h-full grid grid-cols-3 items-center gap-0 px-0">
 
           {/* LEFT COLUMN: Photo placeholder */}
@@ -86,14 +88,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="min-h-screen w-full flex items-center justify-center relative z-20 pointer-events-none border-t border-white/10 bg-black/40 backdrop-blur-md">
+      <section id="stack" className="min-h-screen w-full flex items-center justify-center relative z-20 pointer-events-none border-t border-white/10 bg-black/40 backdrop-blur-md scroll-m-0">
         <div className="text-center max-w-4xl px-4">
           <h2 className="text-xs md:text-sm tracking-[0.3em] uppercase text-white/40 mb-8">02. Stack & Skills</h2>
           <h3 className="text-3xl md:text-5xl lg:text-6xl font-space-grotesk text-white/90 mb-8 leading-tight tracking-tight">Java, Python, Next.js, Docker...<br /><br /><span className="text-white/30 text-2xl md:text-4xl">& anything else required to get the job done.</span></h3>
         </div>
       </section>
 
-      <section className="min-h-screen w-full flex items-center justify-center relative z-20 pointer-events-none border-t border-white/10 bg-black/40 backdrop-blur-md pb-20">
+      <section id="works" className="min-h-screen w-full flex items-center justify-center relative z-20 pointer-events-none border-t border-white/10 bg-black/40 backdrop-blur-md pb-20 scroll-m-0">
         <div className="text-center max-w-4xl px-4">
           <h2 className="text-xs md:text-sm tracking-[0.3em] uppercase text-white/40 mb-8">03. Selected Works</h2>
           <h3 className="text-4xl md:text-6xl lg:text-7xl font-space-grotesk text-white tracking-tight">Engineering beyond<br />the standard.</h3>

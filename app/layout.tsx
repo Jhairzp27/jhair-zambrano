@@ -1,4 +1,4 @@
-import SmoothScroll from "@/components/utils/SmoothScroll";
+import Header from "@/components/ui/Header";
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
@@ -17,11 +17,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
-      <body className="font-sans">
-        <SmoothScroll>
-          {children}
-        </SmoothScroll>
+    <html lang="en" className="scroll-smooth">
+      <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased bg-black text-white`}>
+        <Header />
+        {children}
       </body>
     </html>
   );

@@ -8,6 +8,12 @@
 body {
   color: var(--foreground);
   background: var(--background);
+  /* Suavizado de fuentes para que se vean premium en Mac/Windows */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Forzamos la clase por si Tailwind no la detecta automáticamente */
+.mix-blend-exclusion {
+  mix-blend-mode: exclusion;
 }
