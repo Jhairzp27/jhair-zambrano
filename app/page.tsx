@@ -28,10 +28,10 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="z-20 flex flex-col items-start w-full mix-blend-difference mt-auto">
+        <div className="z-20 flex flex-col items-start w-full mt-auto pointer-events-none">
 
-          <h1 className="text-[5rem] md:text-[8rem] lg:text-[11rem] font-bold font-space-grotesk tracking-tighter text-white leading-[0.85] drop-shadow-md">
-            JHAIR<br />ZAMBRANO
+          <h1 className="text-[5rem] md:text-[8rem] lg:text-[11rem] font-bold font-space-grotesk tracking-tighter text-white leading-[0.85] drop-shadow-2xl">
+            JHAIR<br /> ZAMBRANO
           </h1>
 
           <div className="mt-8 flex flex-col items-start border-l-2 border-white/30 pl-6 max-w-md">
@@ -43,10 +43,12 @@ export default function Home() {
 
         </div>
 
-        {/* Indicador de scroll minimalista - Pushed right */}
-        <div className="absolute bottom-16 right-8 md:right-16 flex flex-col items-center gap-4 text-white/30 text-[10px] tracking-[0.25em] uppercase">
-          <span className="[writing-mode:vertical-rl] rotate-0 mb-2">Scroll to discover</span>
-          <div className="w-[1px] h-16 bg-gradient-to-b from-white/40 to-transparent" />
+        {/* Indicador de scroll minimalista y BRILLANTE */}
+        <div className="absolute bottom-16 right-8 md:right-16 flex flex-col items-center gap-4 text-white text-[10px] tracking-[0.25em] uppercase">
+          <span className="[writing-mode:vertical-rl] rotate-0 mb-2 animate-pulse drop-shadow-[0_0_12px_rgba(255,255,255,0.8)] font-medium">
+            Scroll to discover
+          </span>
+          <div className="w-[2px] h-16 bg-white animate-pulse shadow-[0_0_15px_rgba(255,255,255,0.9)] rounded-full" />
         </div>
       </section>
 
