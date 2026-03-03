@@ -18,7 +18,7 @@ export default function Home() {
 
       <HeroCanvas />
 
-      <section className="relative min-h-screen w-full flex flex-col justify-between pt-12 pb-24 px-8 md:px-16 pointer-events-none z-20">
+      <section id="hero" className="relative min-h-screen w-full flex flex-col justify-between pt-12 pb-24 px-8 md:px-16 pointer-events-none z-20">
 
         {/* Top Header Area */}
         <div className="flex justify-between items-start w-full mt-20">
@@ -53,7 +53,7 @@ export default function Home() {
       </section>
 
       {/* --- 01. ABOUT ME — 3-column layout: Photo | Keyboard | Text --- */}
-      <section className="min-h-screen w-full flex items-center relative z-20 pointer-events-none overflow-hidden border-t border-white/10">
+      <section id="about" className="min-h-screen w-full flex items-center relative z-20 pointer-events-none overflow-hidden border-t border-white/10 scroll-m-0">
         <div className="w-full h-full grid grid-cols-3 items-center gap-0 px-0">
 
           {/* LEFT COLUMN: Photo placeholder */}
@@ -88,14 +88,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="min-h-screen w-full flex items-center justify-center relative z-20 pointer-events-none border-t border-white/10 bg-black/40 backdrop-blur-md">
+      <section id="stack" className="min-h-screen w-full flex items-center justify-center relative z-20 pointer-events-none border-t border-white/10 bg-black/40 backdrop-blur-md scroll-m-0">
         <div className="text-center max-w-4xl px-4">
           <h2 className="text-xs md:text-sm tracking-[0.3em] uppercase text-white/40 mb-8">02. Stack & Skills</h2>
           <h3 className="text-3xl md:text-5xl lg:text-6xl font-space-grotesk text-white/90 mb-8 leading-tight tracking-tight">Java, Python, Next.js, Docker...<br /><br /><span className="text-white/30 text-2xl md:text-4xl">& anything else required to get the job done.</span></h3>
         </div>
       </section>
 
-      <section className="min-h-screen w-full flex items-center justify-center relative z-20 pointer-events-none border-t border-white/10 bg-black/40 backdrop-blur-md pb-20">
+      <section id="works" className="min-h-screen w-full flex items-center justify-center relative z-20 pointer-events-none border-t border-white/10 bg-black/40 backdrop-blur-md pb-20 scroll-m-0">
         <div className="text-center max-w-4xl px-4">
           <h2 className="text-xs md:text-sm tracking-[0.3em] uppercase text-white/40 mb-8">03. Selected Works</h2>
           <h3 className="text-4xl md:text-6xl lg:text-7xl font-space-grotesk text-white tracking-tight">Engineering beyond<br />the standard.</h3>

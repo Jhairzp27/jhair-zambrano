@@ -32,9 +32,16 @@ export default function Header() {
       <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between">
         
         {/* LOGO */}
-        <Link href="/">
-          <span className="font-space-grotesk font-bold tracking-widest text-xl text-white hover:text-orange-500 transition-colors duration-100 cursor-pointer">
-            JZ
+        <Link 
+          href="#hero" 
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          className="group"
+        >
+          <span className="font-space-grotesk font-bold tracking-widest text-xl text-white group-hover:text-orange-500 transition-colors duration-200 cursor-pointer">
+            JZ.
           </span>
         </Link>
 
@@ -61,13 +68,13 @@ export default function Header() {
         <div className="flex items-center gap-6">
           
           <div className="hidden sm:flex items-center gap-5">
-            <a href="https://github.com/tu-usuario" target="_blank" rel="noopener noreferrer" className={socialIconClass} aria-label="GitHub">
+            <a href="https://github.com/Jhairzp27" target="_blank" rel="noopener noreferrer" className={socialIconClass} aria-label="GitHub">
               <FiGithub />
             </a>
-            <a href="https://linkedin.com/in/tu-usuario" target="_blank" rel="noopener noreferrer" className={socialIconClass} aria-label="LinkedIn">
+            <a href="https://linkedin.com/in/gregoy-jhair-zambrano" target="_blank" rel="noopener noreferrer" className={socialIconClass} aria-label="LinkedIn">
               <FiLinkedin />
             </a>
-            <a href="https://fiverr.com/tu-usuario" target="_blank" rel="noopener noreferrer" className={socialIconClass} aria-label="Fiverr">
+            <a href="https://fiverr.com/gregoliana" target="_blank" rel="noopener noreferrer" className={socialIconClass} aria-label="Fiverr">
               <SiFiverr className="text-[2em] -mt-1" />
             </a>
           </div>
