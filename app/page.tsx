@@ -1,5 +1,6 @@
 import HeroCanvas from "@/components/3d/HeroCanvas";
 import SystemControls from '@/components/ui/SystemControls';
+import ProjectCard from "@/components/ui/ProjectCard";
 
 export default function Home() {
   return (
@@ -54,10 +55,7 @@ export default function Home() {
       </section>
 
       {/* --- 01. ABOUT ME --- */}
-      <section 
-        id="about" 
-        className="min-h-screen w-full flex items-center relative z-20 pointer-events-none border-t border-white/10 scroll-mt-0"
-      >
+      <section id="about" className="min-h-screen w-full flex items-center relative z-20 pointer-events-none border-t border-white/10 scroll-mt-0">
         {/* GRID: 1 columna en móvil, 3 en PC */}
         <div className="w-full h-full grid grid-cols-1 lg:grid-cols-3 items-center gap-0 px-0">
 
@@ -68,11 +66,11 @@ export default function Home() {
             <div className="w-full max-w-55 aspect-3/4 rounded-xl border border-white/10 bg-white/0.03 backdrop-blur-md relative overflow-hidden group transition-all duration-500 hover:border-white/20 mb-8">
               
               <div className="absolute inset-0">
-                 {/* TODO: Reemplazar este div por el componente <Image /> de Next.js cuando tenga la foto final.
+                {/* TODO: Reemplazar este div por el componente <Image /> de Next.js cuando tenga la foto final.
                   Ruta esperada: /public/assets/me.jpg */}
-                 <div className="w-full h-full bg-neutral-900 flex items-center justify-center text-white/10 font-mono text-xs">
+                <div className="w-full h-full bg-neutral-900 flex items-center justify-center text-white/10 font-mono text-xs">
                     [IMG_SOURCE]
-                 </div>
+                </div>
               </div>
 
               {/* GRADIENTES Y TEXTO (Van ENCIMA de la foto) */}
@@ -94,18 +92,18 @@ export default function Home() {
               </p>
               
               <div className="flex flex-wrap justify-center gap-2">
-                 <span className="px-3 py-1 rounded-full border border-white/5 bg-white/2 text-[9px] uppercase tracking-wider text-white/40 hover:text-white hover:border-orange-500/30 transition-all cursor-default">
+                <span className="px-3 py-1 rounded-full border border-white/5 bg-white/2 text-[9px] uppercase tracking-wider text-white/40 hover:text-white hover:border-orange-500/30 transition-all cursor-default">
                     Proactive
-                 </span>
-                 <span className="px-3 py-1 rounded-full border border-white/5 bg-white/2 text-[9px] uppercase tracking-wider text-white/40 hover:text-white hover:border-orange-500/30 transition-all cursor-default">
+                </span>
+                <span className="px-3 py-1 rounded-full border border-white/5 bg-white/2 text-[9px] uppercase tracking-wider text-white/40 hover:text-white hover:border-orange-500/30 transition-all cursor-default">
                     Leadership
-                 </span>
-                 <span className="px-3 py-1 rounded-full border border-white/5 bg-white/2 text-[9px] uppercase tracking-wider text-white/40 hover:text-white hover:border-orange-500/30 transition-all cursor-default">
+                </span>
+                <span className="px-3 py-1 rounded-full border border-white/5 bg-white/2 text-[9px] uppercase tracking-wider text-white/40 hover:text-white hover:border-orange-500/30 transition-all cursor-default">
                     Problem Solver
-                 </span>
-                 <span className="px-3 py-1 rounded-full border border-white/5 bg-white/2 text-[9px] uppercase tracking-wider text-white/40 hover:text-white hover:border-orange-500/30 transition-all cursor-default">
+                </span>
+                <span className="px-3 py-1 rounded-full border border-white/5 bg-white/2 text-[9px] uppercase tracking-wider text-white/40 hover:text-white hover:border-orange-500/30 transition-all cursor-default">
                     Resilient
-                 </span>
+                </span>
               </div>
             </div>
 
@@ -193,7 +191,95 @@ export default function Home() {
                   <p className="text-white/40 text-xs leading-relaxed">Scrum & Kanban adaptable. Iterative delivery.</p>
                 </div>
               </div>
- 
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* --- SECCIÓN: SELECTED WORKS --- */}
+      <section id="works"className="w-full relative z-20 border-t border-white/10 bg-black/20 backdrop-blur-sm py-32">
+        <div className="max-w-300 mx-auto px-6 md:px-12">
+          
+          {/* HEADER */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-orange-500 font-mono text-xs">02.</span>
+                <h2 className="text-[10px] md:text-xs tracking-[0.3em] uppercase text-white/40">
+                  Portfolio
+                </h2>
+              </div>
+              <h3 className="text-4xl md:text-5xl font-space-grotesk font-bold text-white tracking-tighter">
+                SELECTED <span className="text-orange-500">WORKS</span>
+              </h3>
+            </div>
+            
+            <p className="text-white/40 text-xs max-w-xs text-right hidden md:block leading-relaxed border-white/10 pl-6">
+              Real-world problems solved with code. <br />
+              From strategic consulting to backend architecture.
+            </p>
+          </div>
+
+          {/* GRID DE PROYECTOS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 lg:gap-12">
+            
+            <ProjectCard
+              title="Habit Tracking Ecosystem"
+              category="Software Architecture"
+              description="Full-cycle development of a productivity platform using Java & Jakarta EE. Engineered the complete UML navigation maps and database schema. Features session management and complex CRUD operations."
+              techStack={["Java", "Jakarta EE", "PostgreSQL", "UML Design", "MVC", "Docker", "CI/CD", "Git"]}
+              repoLink="https://github.com/Jhairzp27/Habit-Tracker"
+              demoLink="https://habit-tracker-jf6y.onrender.com/"
+            />
+
+            <ProjectCard
+              title="Magnus Audit Digital Transformation"
+              category="Web Strategy & SEO"
+              description="Led the digital modernization for an accounting firm in Ecuador. Implemented corporate infrastructure (Email/Hosting), optimized SEO ranking strategies, and integrated Google Analytics for business intelligence."
+              techStack={["Web Design", "Mockups", "Figma" , "SEO", "Google Analytics", "Digital Strategy", "UX/UI"]}
+              demoLink="https://www.magnusauditec.com/"
+            />
+
+            <ProjectCard
+              title="Disaccort Corp. Platform"
+              category="Frontend Development"
+              description="Corporate web platform focused on brand identity and responsive performance. Implemented modern UI patterns."
+              techStack={["HTML/CSS", "JavaScript", "Responsive Design", "Brand Identity", "Git"]}
+              repoLink="https://github.com/Jhairzp27/Disaccort"
+              demoLink="https://jhairzp27.github.io/Disaccort/"
+            />
+
+            <ProjectCard
+              title="Transport Unit Analytics"
+              category="Data Automation"
+              description="Developed an internal automated tool to process transport unit logistics. Replaced manual Excel workflows, generating statistical insights on fleet efficiency. (Proprietary Tool)."
+              techStack={["Python", "Pandas", "Excel Automation", "Data Science", "Data Analytics","Internal Tool"]}
+            />
+
+            <ProjectCard
+              title="CineMax Architecture"
+              category="Modular Software Design"
+              description="Collaborative development of a cinema management system focusing on modularity and design patterns. Led the architectural division of modules to ensure decoupled and maintainable code."
+              techStack={["Software Design", "Modular Arch", "Team Leadership", "Git Flow", "Design Patterns"]}
+              repoLink="https://github.com/CineMax-Diseno-De-Software-GR3SW/CineMax"
+            />
+
+            {/* COMING SOON / PROYECTO CLASIFICADO */}
+            <div className="group relative flex flex-col h-full min-h-75 border border-dashed border-white/10 rounded-2xl items-center justify-center hover:border-orange-500/30 hover:bg-orange-500/2 transition-all duration-500">
+              <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/20 group-hover:text-orange-500 transition-colors">
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-white/20 group-hover:text-white/60 transition-colors font-mono">
+                Project Classified
+              </span>
+              <span className="text-[11px] text-orange-500/50 mt-2 font-mono opacity-0 group-hover:opacity-100 transition-opacity">
+                {"// IN DEVELOPMENT"}
+              </span>
             </div>
 
           </div>
@@ -208,13 +294,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="works" className="min-h-screen w-full flex items-center justify-center relative z-20 pointer-events-none border-t border-white/10 bg-black/40 backdrop-blur-md pb-20 scroll-m-0">
-        <div className="text-center max-w-4xl px-4">
-          <h2 className="text-xs md:text-sm tracking-[0.3em] uppercase text-white/40 mb-8">03. Selected Works</h2>
-          <h3 className="text-4xl md:text-6xl lg:text-7xl font-space-grotesk text-white tracking-tight">Engineering beyond<br />the standard.</h3>
-        </div>
-      </section>
-
     </main>
   );
-} 
+}
