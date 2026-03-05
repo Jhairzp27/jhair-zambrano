@@ -1,6 +1,7 @@
 import HeroCanvas from "@/components/3d/HeroCanvas";
 import SystemControls from '@/components/ui/SystemControls';
 import ProjectCard from "@/components/ui/ProjectCard";
+import CredentialItem from "@/components/ui/CredentialItems";
 
 export default function Home() {
   return (
@@ -287,10 +288,53 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="stack" className="min-h-screen w-full flex items-center justify-center relative z-20 pointer-events-none border-t border-white/10 bg-black/40 backdrop-blur-md scroll-m-0">
-        <div className="text-center max-w-4xl px-4">
-          <h2 className="text-xs md:text-sm tracking-[0.3em] uppercase text-white/40 mb-8">02. Stack & Skills</h2>
-          <h3 className="text-3xl md:text-5xl lg:text-6xl font-space-grotesk text-white/90 mb-8 leading-tight tracking-tight">Java, Python, Next.js, Docker...<br /><br /><span className="text-white/30 text-2xl md:text-4xl">& anything else required to get the job done.</span></h3>
+      <section id="credentials" className="w-full relative z-20 border-t border-white/10 bg-black/20 backdrop-blur-sm py-24">
+        <div className="max-w-250 mx-auto px-6 md:px-12">
+          
+          {/* HEADER: 03. Credentials */}
+          <div className="flex items-center gap-3 mb-12">
+            <span className="text-orange-500 font-mono text-xs">03.</span>
+            <h2 className="text-[10px] md:text-xs tracking-[0.3em] uppercase text-white/40">
+              Certifications
+            </h2>
+          </div>
+
+          {/* LISTA DE CREDENCIALES */}
+          <div className="flex flex-col gap-4">
+            
+            <CredentialItem
+              title="Code in Place (Python Methodology)"
+              issuer="Stanford University"
+              date="2024"
+              status="completed"
+              logoText="S"
+            />
+
+            <CredentialItem
+              title="Software Engineering Bootcamp"
+              issuer="Escuela Politécnica Nacional (EPN)"
+              date="2023"
+              status="completed"
+              logoText="E"
+            />
+
+            <CredentialItem
+              title="Google Data Analytics Professional Certificate"
+              issuer="Google"
+              date="Est. Completion: 2026"
+              status="in-progress"
+              progress={65}
+              logoText="G"
+            />
+
+          </div>
+
+          <div className="mt-8 text-center">
+            <p className="text-white/30 text-[10px] font-mono">
+              VERIFIED CREDENTIALS AVAILABLE ON <a href="www.linkedin.com/in/gregoy-jhair-zambrano" target="_blank" className="text-orange-500 hover:underline underline-offset-4">LINKEDIN</a>
+            </p>
+          </div>
+
         </div>
       </section>
 
