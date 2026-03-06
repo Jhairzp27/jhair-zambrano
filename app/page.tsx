@@ -2,6 +2,7 @@ import HeroCanvas from "@/components/3d/HeroCanvas";
 import SystemControls from '@/components/ui/SystemControls';
 import ProjectCard from "@/components/ui/ProjectCard";
 import CredentialItem from "@/components/ui/CredentialItems";
+import Footer from "@/components/ui/Footer";
 
 export default function Home() {
   return (
@@ -337,6 +338,8 @@ export default function Home() {
 
         </div>
       </section>
+
+      <Footer />
 
     </main>
   );
