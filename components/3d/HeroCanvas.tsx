@@ -5,6 +5,8 @@ import type { Application, SPEObject } from '@splinetool/runtime';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useCallback, useEffect, useRef } from 'react';
+import { useSound } from '../context/SoundContext';
+
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -51,6 +53,7 @@ export default function HeroCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const splineAppRef = useRef<Application | null>(null);
   const keyboardRef = useRef<SPEObject | null>(null);
+  const { isMuted } = useSound(); // Consumimos el estado
 
   const scrollState = useRef({
     tx: SCROLL_KEYFRAMES[0].tx,
@@ -133,12 +136,36 @@ export default function HeroCanvas() {
 
     window.addEventListener('mousemove', handleMouseMove);
 
+    // 1. Método DOM: Busca todos los elementos de audio/video creados por Spline
+    const mediaElements = document.querySelectorAll('audio, video');
+    mediaElements.forEach((el) => {
+      // TypeScript puede quejarse aquí, casteamos a HTMLMediaElement
+      (el as HTMLMediaElement).muted = isMuted;
+    });
+
+    // 2. Método Observer: Spline a veces crea los audios dinámicamente al presionar teclas.
+    // Observamos cambios en el DOM para silenciar nuevos sonidos al instante.
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node instanceof HTMLMediaElement) {
+            node.muted = isMuted;
+          }
+        });
+      });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
     return () => {
       trigger.kill();
       tl.kill();
       window.removeEventListener('mousemove', handleMouseMove);
+      observer.disconnect();
     };
-  }, [applyTransforms, handleMouseMove]);
+
+    
+  }, [applyTransforms, handleMouseMove, isMuted]);
 
   function onSplineLoad(app: Application) {
     splineAppRef.current = app;
