@@ -2,129 +2,179 @@
 
 import Spline from '@splinetool/react-spline';
 import type { Application, SPEObject } from '@splinetool/runtime';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useCallback, useEffect, useRef } from 'react';
+
+gsap.registerPlugin(ScrollTrigger);
+
+interface ScrollKeyframe {
+  scroll: number;
+  tx: number;
+  ty: number;
+  scale: number;
+  rotX: number;
+  rotY: number;
+  rotZ: number;
+}
+
+const SCROLL_KEYFRAMES: readonly ScrollKeyframe[] = [
+  // Inicio
+  { scroll: 0,    tx:  10, ty:  7, scale: 1,    rotX:  0,    rotY: 0,                 rotZ: 0 },
+  { scroll: 120,  tx:  10, ty:  2, scale: 0.9,  rotX:  0.1,  rotY: 0.1,               rotZ: -0.1 },
+  { scroll: 800,  tx:   0, ty: 10, scale: 0.75, rotX:  0,    rotY: Math.PI / 2,       rotZ: -(Math.PI * 2) },
+  { scroll: 1600, tx:   0, ty: 40, scale: 0.65,  rotX: -0.3,  rotY: Math.PI,           rotZ: -(Math.PI * 2) - Math.PI / 4 },
+  { scroll: 2400, tx:   0, ty: 15, scale: 0.85, rotX:  0.35, rotY: Math.PI * 2,       rotZ: -(Math.PI * 2) },
+  { scroll: 3200, tx:   0, ty: 10, scale: 0.6,  rotX: -0.2,  rotY: Math.PI * 2.5,     rotZ: -(Math.PI * 3) },
+  { scroll: 4500, tx: -23.5,  ty: 40.5, scale: 0.81, rotX: -0.74, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
+];
+
+const MOUSE_PARALLAX = {
+  MAX_RADIUS: 600,
+  DEFAULT_INTENSITY: 0.15,
+  LANDED_INTENSITY: 0.005,
+  LANDED_SCROLL_THRESHOLD: 0.95,
+} as const;
+
+const INTRO_KEYPRESS_SEQUENCE = [
+  { key: 'Key j', delay: 1000 },
+  { key: 'Key h', delay: 1300 },
+  { key: 'Key a', delay: 1600 },
+  { key: 'Key i', delay: 1900 },
+  { key: 'Key r', delay: 2200 },
+] as const;
+
+const KEYBOARD_INITIAL_SCALE = 0.5;
+const KEY_PRESS_DURATION_MS = 200;
 
 export default function HeroCanvas() {
-  const { scrollY } = useScroll();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const splineAppRef = useRef<Application | null>(null);
+  const keyboardRef = useRef<SPEObject | null>(null);
 
-  // 0: Hero | 120: Inicia la caída | 800: Aterriza en About | 1600: Skills | 2400: Works
-  const bp = [0, 120, 800, 1600, 2400];
+  const scrollState = useRef({
+    tx: SCROLL_KEYFRAMES[0].tx,
+    ty: SCROLL_KEYFRAMES[0].ty,
+    scale: SCROLL_KEYFRAMES[0].scale,
+    rotX: SCROLL_KEYFRAMES[0].rotX,
+    rotY: SCROLL_KEYFRAMES[0].rotY,
+    rotZ: SCROLL_KEYFRAMES[0].rotZ,
+  });
 
-  // --- 1. CSS TRANSFORMS (Layout) ---
-  const translateX = useTransform(scrollY, bp, ['10vw', '10vw', '0vw', '0vw', '0vw']);
-  const translateY = useTransform(scrollY, bp, ['7vh', '2vh', '10vh', '40vh', '15vh']);
-  const scale = useTransform(scrollY, bp, [1, 0.9, 0.75, 0.5, 0.85]);
+  const mouseOffset = useRef({ x: 0, y: 0 });
+  const scrollProgressRef = useRef(0);
 
-  // --- 2. 3D ROTATIONS (La Caída Fluida) ---
+  const applyTransforms = useCallback(() => {
+    const s = scrollState.current;
 
-  // EJE X (Cabeceo): 
-  // Lo mantenemos simple. Solo se inclina un poco hacia adelante/atrás para dar sensación de peso.
-  const rotX = useTransform(scrollY, bp, [
-    0,
-    0.1,
-    0,
-    -0.3,
-    0.35
-  ]);
+    if (containerRef.current) {
+      containerRef.current.style.transform = 
+        `translate(${s.tx}vw, ${s.ty}vh) scale(${s.scale})`;
+    }
 
-  // EJE Y (El giro de "Llave"): 
-  // AHORA ES SUAVE. Pasa de 0 a 90º (Math.PI / 2) a lo largo de 400 píxeles de scroll.
-  const rotY = useTransform(scrollY, bp, [
-    0,
-    0.1,
-    Math.PI / 2,
-    Math.PI,
-    Math.PI * 2
-  ]);
+    if (keyboardRef.current) {
+      const mouse = mouseOffset.current;
+      const isLanded = scrollProgressRef.current > MOUSE_PARALLAX.LANDED_SCROLL_THRESHOLD;
+      const factor = isLanded ? MOUSE_PARALLAX.LANDED_INTENSITY : MOUSE_PARALLAX.DEFAULT_INTENSITY;
 
-  // EJE Z (El nuevo "Flip" tipo Barrel Roll): 
-  // Da un giro lateral completo (360º = -Math.PI * 2) mientras cae, aterrizando perfectamente recto.
-  const rotZ = useTransform(scrollY, bp, [
-    0,
-    -0.1,
-    -Math.PI * 2,
-    -Math.PI * 2 - Math.PI / 4,
-    -Math.PI * 2
-  ]);
+      keyboardRef.current.rotation.x = s.rotX + mouse.y * factor;
+      keyboardRef.current.rotation.y = s.rotY + mouse.x * factor;
+      keyboardRef.current.rotation.z = s.rotZ;
+    }
+  }, []);
 
-  const splineRef = useRef<Application | null>(null);
-  const tecladoObjRef = useRef<SPEObject | null>(null);
-  const mousePos = useRef({ x: 0, y: 0 });
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const dx = e.clientX - centerX;
+    const dy = e.clientY - centerY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    let intensity = 1 - distance / MOUSE_PARALLAX.MAX_RADIUS;
+    if (intensity < 0) intensity = 0;
+
+    mouseOffset.current.x = ((e.clientX / window.innerWidth) * 2 - 1) * intensity;
+    mouseOffset.current.y = (-(e.clientY / window.innerHeight) * 2 + 1) * intensity;
+
+    applyTransforms();
+  }, [applyTransforms]);
 
   useEffect(() => {
-    const update3DObject = () => {
-      if (!tecladoObjRef.current) return;
+    const tl = gsap.timeline();
 
-      const mx = mousePos.current.x;
-      const my = mousePos.current.y;
+    for (let i = 1; i < SCROLL_KEYFRAMES.length; i++) {
+      const prev = SCROLL_KEYFRAMES[i - 1];
+      const curr = SCROLL_KEYFRAMES[i];
 
-      tecladoObjRef.current.rotation.x = rotX.get() + my * 0.15;
-      tecladoObjRef.current.rotation.y = rotY.get() + mx * 0.15;
-      tecladoObjRef.current.rotation.z = rotZ.get();
-    };
+      tl.to(scrollState.current, {
+        tx: curr.tx,
+        ty: curr.ty,
+        scale: curr.scale,
+        rotX: curr.rotX,
+        rotY: curr.rotY,
+        rotZ: curr.rotZ,
+        duration: curr.scroll - prev.scroll,
+        ease: 'none',
+        onUpdate: applyTransforms,
+      }, prev.scroll);
+    }
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      const dx = e.clientX - centerX;
-      const dy = e.clientY - centerY;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+    // --- AQUÍ ESTÁ LA MAGIA ---
+    const trigger = ScrollTrigger.create({
+      animation: tl,
+      trigger: 'body',
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 0.5,
+      onUpdate: (self) => {
+        scrollProgressRef.current = self.progress;
+      },
+    });
 
-      const maxRadius = 600;
-      let intensity = 1 - (distance / maxRadius);
-      if (intensity < 0) intensity = 0;
-
-      mousePos.current.x = ((e.clientX / window.innerWidth) * 2 - 1) * intensity;
-      mousePos.current.y = (-(e.clientY / window.innerHeight) * 2 + 1) * intensity;
-
-      update3DObject();
-    };
-
-    const unsubscribeScroll = scrollY.on('change', update3DObject);
     window.addEventListener('mousemove', handleMouseMove);
 
     return () => {
+      trigger.kill();
+      tl.kill();
       window.removeEventListener('mousemove', handleMouseMove);
-      unsubscribeScroll();
     };
-  }, [scrollY, rotX, rotY, rotZ]);
+  }, [applyTransforms, handleMouseMove]);
 
-  function onLoad(splineApp: Application) {
-    splineRef.current = splineApp;
-    const keyboard = splineApp.findObjectByName('Keyboard');
-    tecladoObjRef.current = keyboard || null;
+  function onSplineLoad(app: Application) {
+    splineAppRef.current = app;
+    const keyboard = app.findObjectByName('Keyboard');
+    keyboardRef.current = keyboard ?? null;
 
-    if (tecladoObjRef.current) {
-
-      tecladoObjRef.current.scale.x = 0.5;
-      tecladoObjRef.current.scale.y = 0.5;
-      tecladoObjRef.current.scale.z = 0.5;
-
-      tecladoObjRef.current.position.x = 0;
-      tecladoObjRef.current.position.y = 0;
+    if (keyboard) {
+      keyboard.scale.x = KEYBOARD_INITIAL_SCALE;
+      keyboard.scale.y = KEYBOARD_INITIAL_SCALE;
+      keyboard.scale.z = KEYBOARD_INITIAL_SCALE;
+      keyboard.position.x = 0;
+      keyboard.position.y = 0;
     }
 
-    const pressKey = (keyName: string, delay: number) => {
+    for (const { key, delay } of INTRO_KEYPRESS_SEQUENCE) {
       setTimeout(() => {
-        splineApp.emitEvent('keyDown', keyName);
-        setTimeout(() => { splineApp.emitEvent('keyUp', keyName); }, 200);
+        app.emitEvent('keyDown', key);
+        setTimeout(() => app.emitEvent('keyUp', key), KEY_PRESS_DURATION_MS);
       }, delay);
-    };
-    pressKey('Key j', 1000); pressKey('Key h', 1300); pressKey('Key a', 1600); pressKey('Key i', 1900); pressKey('Key r', 2200);
+    }
   }
 
+  const initial = SCROLL_KEYFRAMES[0];
+
   return (
-    <motion.div
-      style={{ x: translateX, y: translateY, scale }}
+    <div
+      ref={containerRef}
+      style={{ transform: `translate(${initial.tx}vw, ${initial.ty}vh) scale(${initial.scale})` }}
       className="fixed inset-0 z-10 w-screen h-screen flex items-center justify-center pointer-events-none"
     >
       <div className="w-[150vw] h-[150vh] flex items-center justify-center pointer-events-none">
         <Spline
           scene="/models/keyboard.splinecode"
-          onLoad={onLoad}
+          onLoad={onSplineLoad}
         />
       </div>
-    </motion.div>
+    </div>
   );
 }
