@@ -21,10 +21,9 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased bg-black text-white`}>
         <SoundProvider>
+          <Header />
           {children}
         </SoundProvider>
-        <Header />
-        {children}
       </body>
     </html>
   );
