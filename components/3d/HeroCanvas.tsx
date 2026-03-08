@@ -10,38 +10,27 @@ gsap.registerPlugin(ScrollTrigger);
 
 interface ScrollKeyframe {
   scroll: number;
-  tx: number;
-  ty: number;
-  scale: number;
-  rotX: number;
-  rotY: number;
-  rotZ: number;
+  tx: number; ty: number; scale: number;
+  rotX: number; rotY: number; rotZ: number;
 }
 
 const SCROLL_KEYFRAMES: readonly ScrollKeyframe[] = [
-  // Inicio
   { scroll: 0,    tx:  10, ty:  7, scale: 1,    rotX:  0,    rotY: 0,                 rotZ: 0 },
   { scroll: 120,  tx:  10, ty:  2, scale: 0.9,  rotX:  0.1,  rotY: 0.1,               rotZ: -0.1 },
   { scroll: 800,  tx:   0, ty: 10, scale: 0.75, rotX:  0,    rotY: Math.PI / 2,       rotZ: -(Math.PI * 2) },
-  { scroll: 1600, tx:   0, ty: 40, scale: 0.65,  rotX: -0.3,  rotY: Math.PI,           rotZ: -(Math.PI * 2) - Math.PI / 4 },
+  { scroll: 1600, tx:   0, ty: 40, scale: 0.5,  rotX: -0.3,  rotY: Math.PI,           rotZ: -(Math.PI * 2) - Math.PI / 4 },
   { scroll: 2400, tx:   0, ty: 15, scale: 0.85, rotX:  0.35, rotY: Math.PI * 2,       rotZ: -(Math.PI * 2) },
   { scroll: 3200, tx:   0, ty: 10, scale: 0.6,  rotX: -0.2,  rotY: Math.PI * 2.5,     rotZ: -(Math.PI * 3) },
-  { scroll: 4500, tx: -23.5,  ty: 40.5, scale: 0.81, rotX: -0.74, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
+  { scroll: 4500, tx: -23.5, ty: 38, scale: 0.81, rotX: -0.74, rotY: Math.PI * 4,       rotZ: -(Math.PI * 4) - 0.04 },
 ];
 
 const MOUSE_PARALLAX = {
-  MAX_RADIUS: 600,
-  DEFAULT_INTENSITY: 0.15,
-  LANDED_INTENSITY: 0.005,
-  LANDED_SCROLL_THRESHOLD: 0.95,
+  MAX_RADIUS: 600, DEFAULT_INTENSITY: 0.15, LANDED_INTENSITY: 0.005, LANDED_SCROLL_THRESHOLD: 0.95,
 } as const;
 
 const INTRO_KEYPRESS_SEQUENCE = [
-  { key: 'Key j', delay: 1000 },
-  { key: 'Key h', delay: 1300 },
-  { key: 'Key a', delay: 1600 },
-  { key: 'Key i', delay: 1900 },
-  { key: 'Key r', delay: 2200 },
+  { key: 'Key j', delay: 1000 }, { key: 'Key h', delay: 1300 },
+  { key: 'Key a', delay: 1600 }, { key: 'Key i', delay: 1900 }, { key: 'Key r', delay: 2200 },
 ] as const;
 
 const KEYBOARD_INITIAL_SCALE = 0.5;
@@ -53,12 +42,8 @@ export default function HeroCanvas() {
   const keyboardRef = useRef<SPEObject | null>(null);
 
   const scrollState = useRef({
-    tx: SCROLL_KEYFRAMES[0].tx,
-    ty: SCROLL_KEYFRAMES[0].ty,
-    scale: SCROLL_KEYFRAMES[0].scale,
-    rotX: SCROLL_KEYFRAMES[0].rotX,
-    rotY: SCROLL_KEYFRAMES[0].rotY,
-    rotZ: SCROLL_KEYFRAMES[0].rotZ,
+    tx: SCROLL_KEYFRAMES[0].tx, ty: SCROLL_KEYFRAMES[0].ty, scale: SCROLL_KEYFRAMES[0].scale,
+    rotX: SCROLL_KEYFRAMES[0].rotX, rotY: SCROLL_KEYFRAMES[0].rotY, rotZ: SCROLL_KEYFRAMES[0].rotZ,
   });
 
   const mouseOffset = useRef({ x: 0, y: 0 });
@@ -66,17 +51,13 @@ export default function HeroCanvas() {
 
   const applyTransforms = useCallback(() => {
     const s = scrollState.current;
-
     if (containerRef.current) {
-      containerRef.current.style.transform = 
-        `translate(${s.tx}vw, ${s.ty}vh) scale(${s.scale})`;
+      containerRef.current.style.transform = `translate(${s.tx}vw, ${s.ty}vh) scale(${s.scale})`;
     }
-
     if (keyboardRef.current) {
       const mouse = mouseOffset.current;
       const isLanded = scrollProgressRef.current > MOUSE_PARALLAX.LANDED_SCROLL_THRESHOLD;
       const factor = isLanded ? MOUSE_PARALLAX.LANDED_INTENSITY : MOUSE_PARALLAX.DEFAULT_INTENSITY;
-
       keyboardRef.current.rotation.x = s.rotX + mouse.y * factor;
       keyboardRef.current.rotation.y = s.rotY + mouse.x * factor;
       keyboardRef.current.rotation.z = s.rotZ;
@@ -89,54 +70,37 @@ export default function HeroCanvas() {
     const dx = e.clientX - centerX;
     const dy = e.clientY - centerY;
     const distance = Math.sqrt(dx * dx + dy * dy);
-
     let intensity = 1 - distance / MOUSE_PARALLAX.MAX_RADIUS;
     if (intensity < 0) intensity = 0;
-
     mouseOffset.current.x = ((e.clientX / window.innerWidth) * 2 - 1) * intensity;
     mouseOffset.current.y = (-(e.clientY / window.innerHeight) * 2 + 1) * intensity;
-
     applyTransforms();
   }, [applyTransforms]);
 
   useEffect(() => {
     const tl = gsap.timeline();
-
     for (let i = 1; i < SCROLL_KEYFRAMES.length; i++) {
       const prev = SCROLL_KEYFRAMES[i - 1];
       const curr = SCROLL_KEYFRAMES[i];
-
       tl.to(scrollState.current, {
-        tx: curr.tx,
-        ty: curr.ty,
-        scale: curr.scale,
-        rotX: curr.rotX,
-        rotY: curr.rotY,
-        rotZ: curr.rotZ,
+        tx: curr.tx, ty: curr.ty, scale: curr.scale,
+        rotX: curr.rotX, rotY: curr.rotY, rotZ: curr.rotZ,
         duration: curr.scroll - prev.scroll,
         ease: 'none',
         onUpdate: applyTransforms,
       }, prev.scroll);
     }
-
-    // --- AQUÍ ESTÁ LA MAGIA ---
     const trigger = ScrollTrigger.create({
       animation: tl,
       trigger: 'body',
       start: 'top top',
       end: 'bottom bottom',
       scrub: 0.5,
-      onUpdate: (self) => {
-        scrollProgressRef.current = self.progress;
-      },
+      onUpdate: (self) => { scrollProgressRef.current = self.progress; },
     });
-
     window.addEventListener('mousemove', handleMouseMove);
-
     return () => {
-      trigger.kill();
-      tl.kill();
-      window.removeEventListener('mousemove', handleMouseMove);
+      trigger.kill(); tl.kill(); window.removeEventListener('mousemove', handleMouseMove);
     };
   }, [applyTransforms, handleMouseMove]);
 
@@ -144,15 +108,11 @@ export default function HeroCanvas() {
     splineAppRef.current = app;
     const keyboard = app.findObjectByName('Keyboard');
     keyboardRef.current = keyboard ?? null;
-
     if (keyboard) {
       keyboard.scale.x = KEYBOARD_INITIAL_SCALE;
       keyboard.scale.y = KEYBOARD_INITIAL_SCALE;
       keyboard.scale.z = KEYBOARD_INITIAL_SCALE;
-      keyboard.position.x = 0;
-      keyboard.position.y = 0;
     }
-
     for (const { key, delay } of INTRO_KEYPRESS_SEQUENCE) {
       setTimeout(() => {
         app.emitEvent('keyDown', key);
