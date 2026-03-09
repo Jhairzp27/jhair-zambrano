@@ -18,7 +18,6 @@ interface ScrollKeyframe {
   rotZ: number;
 }
 
-// Configuración de Parallax
 const PARALLAX_CONFIG = {
   MAX_RADIUS: 600,
   DEFAULT_INTENSITY: 0.15,
@@ -26,7 +25,6 @@ const PARALLAX_CONFIG = {
   LANDED_SCROLL_THRESHOLD: 0.95,
 } as const;
 
-// Secuencia de Intro
 const INTRO_SEQUENCE = [
   { key: "Key j", delay: 1000 },
   { key: "Key h", delay: 1300 },
@@ -35,131 +33,47 @@ const INTRO_SEQUENCE = [
   { key: "Key r", delay: 2200 },
 ] as const;
 
-// --- KEYFRAMES: DESKTOP ---
+// --- KEYFRAMES: DESKTOP (> 1024px) ---
 const DESKTOP_KEYFRAMES: readonly ScrollKeyframe[] = [
   { scroll: 0, tx: 10, ty: 7, scale: 1, rotX: 0, rotY: 0, rotZ: 0 },
   { scroll: 120, tx: 10, ty: 2, scale: 0.9, rotX: 0.1, rotY: 0.1, rotZ: -0.1 },
-  {
-    scroll: 800,
-    tx: 0,
-    ty: 10,
-    scale: 0.75,
-    rotX: 0,
-    rotY: Math.PI / 2,
-    rotZ: -(Math.PI * 2),
-  },
-  {
-    scroll: 1600,
-    tx: 0,
-    ty: 40,
-    scale: 0.5,
-    rotX: -0.3,
-    rotY: Math.PI,
-    rotZ: -(Math.PI * 2) - Math.PI / 4,
-  },
-  {
-    scroll: 2400,
-    tx: 0,
-    ty: 15,
-    scale: 0.85,
-    rotX: 0.35,
-    rotY: Math.PI * 2,
-    rotZ: -(Math.PI * 2),
-  },
-  {
-    scroll: 3200,
-    tx: 0,
-    ty: 10,
-    scale: 0.6,
-    rotX: -0.2,
-    rotY: Math.PI * 2.5,
-    rotZ: -(Math.PI * 3),
-  },
-  {
-    scroll: 4500,
-    tx: -23.5,
-    ty: 38,
-    scale: 0.81,
-    rotX: -0.74,
-    rotY: Math.PI * 4,
-    rotZ: -(Math.PI * 4) - 0.04,
-  },
+  { scroll: 800, tx: 0, ty: 10, scale: 0.75, rotX: 0, rotY: Math.PI / 2, rotZ: -(Math.PI * 2) },
+  { scroll: 1600, tx: 0, ty: 40, scale: 0.5, rotX: -0.3, rotY: Math.PI, rotZ: -(Math.PI * 2) - Math.PI / 4 },
+  { scroll: 2400, tx: 0, ty: 15, scale: 0.85, rotX: 0.35, rotY: Math.PI * 2, rotZ: -(Math.PI * 2) },
+  { scroll: 3200, tx: 0, ty: 10, scale: 0.6, rotX: -0.2, rotY: Math.PI * 2.5, rotZ: -(Math.PI * 3) },
+  { scroll: 4500, tx: -23.5, ty: 38, scale: 0.81, rotX: -0.74, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
 ];
 
-// --- KEYFRAMES: MOBILE ---
+// --- KEYFRAMES: MOBILE (< 768px) ---
 const MOBILE_KEYFRAMES: readonly ScrollKeyframe[] = [
-  {
-    scroll: 0,
-    tx: -15,
-    ty: -2,
-    scale: 1.9,
-    rotX: Math.PI * 2 + 0.4,
-    rotY: Math.PI / 2 + 0.4,
-    rotZ: 0,
-  },
-  {
-    scroll: 450,
-    tx: 0,
-    ty: 10,
-    scale: 1.55,
-    rotX: Math.PI + 0.2,
-    rotY: Math.PI / 2,
-    rotZ: 0,
-  },
-  {
-    scroll: 800,
-    tx: 0,
-    ty: 0,
-    scale: 1.55,
-    rotX: 0.1,
-    rotY: Math.PI / 4,
-    rotZ: 0,
-  },
-  {
-    scroll: 1600,
-    tx: 0,
-    ty: 45,
-    scale: 1.5,
-    rotX: -0.2,
-    rotY: Math.PI,
-    rotZ: -(Math.PI * 2),
-  },
-  {
-    scroll: 2400,
-    tx: 0,
-    ty: 20,
-    scale: 1.5,
-    rotX: 0.3,
-    rotY: Math.PI * 2,
-    rotZ: 0,
-  },
-  {
-    scroll: 4500,
-    tx: 0,
-    ty: -15,
-    scale: 1.44,
-    rotX: -0.8,
-    rotY: Math.PI * 4,
-    rotZ: -(Math.PI * 4) - 0.04,
-  },
+  { scroll: 0, tx: -15, ty: -2, scale: 1.9, rotX: Math.PI * 2 + 0.4, rotY: Math.PI / 2 + 0.4, rotZ: 0 },
+  { scroll: 450, tx: 0, ty: 10, scale: 1.55, rotX: Math.PI + 0.2, rotY: Math.PI / 2, rotZ: 0 },
+  { scroll: 800, tx: 0, ty: 0, scale: 1.55, rotX: 0.1, rotY: Math.PI / 4, rotZ: 0 },
+  { scroll: 1600, tx: 0, ty: 45, scale: 1.5, rotX: -0.2, rotY: Math.PI, rotZ: -(Math.PI * 2) },
+  { scroll: 2400, tx: 0, ty: 20, scale: 1.5, rotX: 0.3, rotY: Math.PI * 2, rotZ: 0 },
+  { scroll: 4500, tx: 0, ty: -15, scale: 1.44, rotX: -0.8, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
+];
+
+// --- KEYFRAMES: TABLET (768px - 1024px) ---
+const TABLET_KEYFRAMES: readonly ScrollKeyframe[] = [
+  { scroll: 0,    tx: 0, ty: 0, scale: 1.3,  rotX: 0.1, rotY: 0, rotZ: 0 },
+  { scroll: 450, tx: 0, ty: 10, scale: 1.55, rotX: Math.PI *2 + 0.2, rotY: Math.PI /2, rotZ: 0 },
+  { scroll: 800, tx: 0, ty: 20, scale: 1.15, rotX: 0.2, rotY: (Math.PI /4) , rotZ: 0 },
+  { scroll: 1600, tx: 0, ty: 45, scale: 1.5, rotX: -0.2, rotY: Math.PI, rotZ: -(Math.PI * 2) },
+  { scroll: 2400, tx: 0, ty: 20, scale: 1.5, rotX: 0.3, rotY: Math.PI * 2, rotZ: 0 },
+  { scroll: 4500, tx: 0, ty: -15, scale: 1.44, rotX: -0.8, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
 ];
 
 export default function HeroCanvas() {
-  // Refs para acceso directo al DOM y Objetos 3D (Performance optimization)
   const containerRef = useRef<HTMLDivElement>(null);
   const splineAppRef = useRef<Application | null>(null);
   const keyboardRef = useRef<SPEObject | null>(null);
 
   // Estado para responsive
-  const [isMobile, setIsMobile] = useState(false);
+  const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
 
   const scrollState = useRef({
-    tx: 0,
-    ty: 0,
-    scale: 1,
-    rotX: 0,
-    rotY: 0,
-    rotZ: 0,
+    tx: 0, ty: 0, scale: 1, rotX: 0, rotY: 0, rotZ: 0,
   });
 
   const mouseOffset = useRef({ x: 0, y: 0 });
@@ -167,14 +81,23 @@ export default function HeroCanvas() {
 
   // --- 2. DETECCIÓN DE DISPOSITIVO (Strategy Pattern implícito) ---
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
+    const checkDevice = () => {
+      const w = window.innerWidth;
+      
+      let newDevice: 'mobile' | 'tablet' | 'desktop' = 'desktop';
+      if (w < 640) newDevice = 'mobile';
+      else if (w >= 640 && w < 1024) newDevice = 'tablet';
+      else newDevice = 'desktop';
 
-    // Debounce simple para resize
+      setDeviceType(newDevice);
+    };
+    
+    checkDevice();
+
     let timeoutId: NodeJS.Timeout;
     const handleResize = () => {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(checkMobile, 100);
+      timeoutId = setTimeout(checkDevice, 100);
     };
 
     window.addEventListener("resize", handleResize);
@@ -185,12 +108,13 @@ export default function HeroCanvas() {
   }, []);
 
   // Selección de estrategia de animación
-  const currentKeyframes = useMemo(
-    () => (isMobile ? MOBILE_KEYFRAMES : DESKTOP_KEYFRAMES),
-    [isMobile],
-  );
+  const currentKeyframes = useMemo(() => {
+    if (deviceType === 'mobile') return MOBILE_KEYFRAMES;
+    if (deviceType === 'tablet') return TABLET_KEYFRAMES;
+    return DESKTOP_KEYFRAMES;
+  }, [deviceType]);
 
-  // --- 3. LOGICA DE RENDERIZADO (MOVIDA AQUÍ ARRIBA) ---
+  // --- 3. LOGICA DE RENDERIZADO ---
   const applyTransforms = useCallback(() => {
     const s = scrollState.current;
 
@@ -201,22 +125,19 @@ export default function HeroCanvas() {
 
     // Aplicar al objeto 3D (Rotación + Parallax)
     if (keyboardRef.current) {
-      // Parallax solo si NO es móvil
-      const mouse = isMobile ? { x: 0, y: 0 } : mouseOffset.current;
+      // Parallax activado en Tablet y Desktop
+      const mouse = deviceType === 'mobile' ? { x: 0, y: 0 } : mouseOffset.current;
 
-      const isLanded =
-        scrollProgressRef.current > PARALLAX_CONFIG.LANDED_SCROLL_THRESHOLD;
-      const factor = isLanded
-        ? PARALLAX_CONFIG.LANDED_INTENSITY
-        : PARALLAX_CONFIG.DEFAULT_INTENSITY;
+      const isLanded = scrollProgressRef.current > PARALLAX_CONFIG.LANDED_SCROLL_THRESHOLD;
+      const factor = isLanded ? PARALLAX_CONFIG.LANDED_INTENSITY : PARALLAX_CONFIG.DEFAULT_INTENSITY;
 
       keyboardRef.current.rotation.x = s.rotX + mouse.y * factor;
       keyboardRef.current.rotation.y = s.rotY + mouse.x * factor;
       keyboardRef.current.rotation.z = s.rotZ;
     }
-  }, [isMobile]);
+  }, [deviceType]);
 
-  // --- INICIALIZACIÓN DEL ESTADO ---
+  // --- INICIALIZACIÓN ---
   useEffect(() => {
     const initial = currentKeyframes[0];
     scrollState.current = { ...initial };
@@ -228,7 +149,7 @@ export default function HeroCanvas() {
   // --- 4. EVENT HANDLERS ---
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      if (isMobile) return;
+      if (deviceType === 'mobile') return;
 
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
@@ -249,7 +170,7 @@ export default function HeroCanvas() {
 
       applyTransforms();
     },
-    [isMobile, applyTransforms],
+    [deviceType, applyTransforms],
   );
 
   // --- 5. ORQUESTACIÓN DE ANIMACIONES (GSAP + ScrollTrigger) ---
@@ -273,13 +194,9 @@ export default function HeroCanvas() {
       tl.to(
         scrollState.current,
         {
-          tx: curr.tx,
-          ty: curr.ty,
-          scale: curr.scale,
-          rotX: curr.rotX,
-          rotY: curr.rotY,
-          rotZ: curr.rotZ,
-          duration: curr.scroll - prev.scroll, // Duración basada en píxeles de scroll
+          tx: curr.tx, ty: curr.ty, scale: curr.scale,
+          rotX: curr.rotX, rotY: curr.rotY, rotZ: curr.rotZ,
+          duration: curr.scroll - prev.scroll,
           ease: "none",
           onUpdate: applyTransforms,
         },
