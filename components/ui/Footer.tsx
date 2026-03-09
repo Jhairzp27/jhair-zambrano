@@ -108,7 +108,7 @@ export default function Footer() {
     "idle" | "sending" | "success" | "error"
   >("idle");
 
-  // ESTADO BATERÍA REAL (Inicializado en 100/true para el fallback)
+  // ESTADO BATERÍA REAL
   const [batteryLevel, setBatteryLevel] = useState(100);
   const [isCharging, setIsCharging] = useState(true);
 
@@ -118,18 +118,14 @@ export default function Footer() {
 
   // --- HOOK: DETECTAR BATERÍA REAL ---
   useEffect(() => {
-    // Casteamos navigator para acceder a la API experimental
     const nav = navigator as NavigatorWithBattery;
-
     if (typeof nav.getBattery === "function") {
       nav.getBattery().then((battery) => {
         const updateBattery = () => {
           setBatteryLevel(Math.round(battery.level * 100));
           setIsCharging(battery.charging);
         };
-        // Leer estado inicial
         updateBattery();
-        // Escuchar cambios
         battery.addEventListener("levelchange", updateBattery as EventListener);
         battery.addEventListener(
           "chargingchange",
@@ -139,9 +135,11 @@ export default function Footer() {
     }
   }, []);
 
+  // --- CORRECCIÓN AQUÍ: Evitamos el foco automático en 'name' al cargar ---
   useEffect(() => {
     if (status === "idle") {
-      if (step === "name") nameInputRef.current?.focus();
+      // Eliminamos: if (step === "name") nameInputRef.current?.focus();
+      // Solo enfocamos automáticamente si estamos avanzando en el wizard (Email o Mensaje)
       if (step === "email") emailInputRef.current?.focus();
       if (step === "message") msgInputRef.current?.focus();
     }
@@ -348,7 +346,7 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* ZONA DE TECLADO 3D */}
+            {/* ZONA DE TECLADO 3D (Decorativo) */}
             <div className="h-40 w-full border border-dashed border-white/10 rounded-md flex items-center justify-center relative bg-white/1">
               <span className="text-[9px] font-mono text-white/10 uppercase tracking-widest absolute top-2 left-3">
                 {"// Hardware_Input_Deck"}
@@ -382,7 +380,7 @@ export default function Footer() {
                 <FiGithub size={20} />
               </a>
               <a
-                href="https://linkedin.com/in/tu-usuario"
+                href="https://linkedin.com/in/gregoy-jhair-zambrano"
                 target="_blank"
                 rel="noreferrer"
                 className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-[#0077b5] hover:border-[#0077b5] transition-all hover:scale-110"
