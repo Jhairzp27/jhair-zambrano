@@ -26,7 +26,7 @@ const PARALLAX_CONFIG = {
   LANDED_SCROLL_THRESHOLD: 0.95,
 } as const;
 
-// Secuencia de Intro (La recuperamos)
+// Secuencia de Intro
 const INTRO_SEQUENCE = [
   { key: "Key j", delay: 1000 },
   { key: "Key h", delay: 1300 },
@@ -35,7 +35,7 @@ const INTRO_SEQUENCE = [
   { key: "Key r", delay: 2200 },
 ] as const;
 
-// --- KEYFRAMES: DESKTOP  ---
+// --- KEYFRAMES: DESKTOP ---
 const DESKTOP_KEYFRAMES: readonly ScrollKeyframe[] = [
   { scroll: 0, tx: 10, ty: 7, scale: 1, rotX: 0, rotY: 0, rotZ: 0 },
   { scroll: 120, tx: 10, ty: 2, scale: 0.9, rotX: 0.1, rotY: 0.1, rotZ: -0.1 },
@@ -86,7 +86,7 @@ const DESKTOP_KEYFRAMES: readonly ScrollKeyframe[] = [
   },
 ];
 
-// --- KEYFRAMES: MOBILE  ---
+// --- KEYFRAMES: MOBILE ---
 const MOBILE_KEYFRAMES: readonly ScrollKeyframe[] = [
   {
     scroll: 0,
@@ -190,13 +190,7 @@ export default function HeroCanvas() {
     [isMobile],
   );
 
-  // Inicializar estado con el primer keyframe correcto
-  useEffect(() => {
-    const initial = currentKeyframes[0];
-    scrollState.current = { ...initial };
-  }, [currentKeyframes]);
-
-  // --- 3. LOGICA DE RENDERIZADO (Core Logic) ---
+  // --- 3. LOGICA DE RENDERIZADO (MOVIDA AQUÍ ARRIBA) ---
   const applyTransforms = useCallback(() => {
     const s = scrollState.current;
 
@@ -222,10 +216,19 @@ export default function HeroCanvas() {
     }
   }, [isMobile]);
 
-  // --- 4. EVENT HANDLERS (Interacción) ---
+  // --- INICIALIZACIÓN DEL ESTADO ---
+  useEffect(() => {
+    const initial = currentKeyframes[0];
+    scrollState.current = { ...initial };
+
+    // Fuerza la actualización visual inmediata
+    applyTransforms();
+  }, [currentKeyframes, applyTransforms]);
+
+  // --- 4. EVENT HANDLERS ---
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      if (isMobile) return; // Guard clause: No parallax en móvil
+      if (isMobile) return;
 
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
@@ -256,7 +259,7 @@ export default function HeroCanvas() {
         trigger: "body",
         start: "top top",
         end: "bottom bottom",
-        scrub: 0.5, // Suavizado
+        scrub: 0.5,
         onUpdate: (self) => {
           scrollProgressRef.current = self.progress;
         },
@@ -301,8 +304,7 @@ export default function HeroCanvas() {
     keyboardRef.current = keyboard ?? null;
 
     if (keyboard) {
-      // Aplicar estado inicial inmediatamente para evitar "saltos"
-      const initial = currentKeyframes[0];
+      const initial = scrollState.current;
       keyboard.rotation.x = initial.rotX;
       keyboard.rotation.y = initial.rotY;
       keyboard.rotation.z = initial.rotZ;
@@ -322,7 +324,7 @@ export default function HeroCanvas() {
     }
   }
 
-  // Estilos iniciales para evitar FOUC (Flash of Unstyled Content)
+  // Estilos iniciales para JSX (evitar FOUC en el contenedor)
   const initial = currentKeyframes[0];
 
   return (
