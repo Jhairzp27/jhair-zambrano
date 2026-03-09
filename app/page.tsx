@@ -8,47 +8,74 @@ export default function Home() {
   return (
     <main className="w-full bg-black text-white relative overflow-x-hidden selection:bg-white selection:text-black">
 
+      {/* RUIDO DE FONDO*/}
       <div
         className="fixed inset-0 z-[-5] opacity-[0.04] pointer-events-none mix-blend-overlay"
         style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }}
       />
 
+      {/* LUZ AMBIENTAL */}
       <div className="fixed inset-0 z-20 flex items-center justify-center pointer-events-none">
         <div className="w-auto h-[100vw] md:w-[60vw] md:h-[60vw] bg-white/3 blur-[150px] rounded-full mix-blend-screen" />
       </div>
 
-      {/* Premium Minimalist Grid */}
-      <div className="fixed inset-0 z-[-30] bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:64px_64px]" />
+      {/* GRID DE FONDO */}
+      <div className="fixed inset-0 z-[-30] bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] md:bg-[size:64px_64px]" />
 
+      {/* CANVAS 3D (Teclado) */}
       <HeroCanvas />
 
-      <section id="hero" className="relative min-h-screen w-full flex flex-col justify-between pt-12 pb-24 px-8 md:px-16 pointer-events-none z-20">
-
-        {/* Top Header Area */}
-        <div className="flex justify-between items-start w-full mt-20">
-          <div className="px-5 py-2 rounded-full border border-white/10 bg-white/3 backdrop-blur-md flex items-center gap-3 drop-shadow-lg z-30 pointer-events-auto cursor-pointer hover:bg-white/8 transition-colors">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-            <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-white/80 font-medium">Available for new opportunities</span>
+      {/* --- SECCIÓN HERO --- */}
+      <section id="hero" className="relative min-h-screen w-full flex flex-col justify-between pt-12 pb-12 md:pb-24 px-6 md:px-16 pointer-events-none z-20">
+        {/* MÓVIL - Badges*/}
+        <div className="md:hidden absolute top-[25%] left-6 z-30 pointer-events-auto">
+          <div className="[writing-mode:vertical-rl] rotate-180 px-4 py-1.3 rounded-full border border-white/10 bg-white/3 backdrop-blur-md flex items-center gap-3 drop-shadow-lg">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
+            <span className="text-[9px] uppercase tracking-[0.15em] text-white/80 font-medium">
+              Available for work
+            </span>
           </div>
         </div>
 
-        <div className="z-20 flex flex-col items-start w-full mt-auto pointer-events-none">
+        {/* ESCRITORIO*/}
+        <div className="hidden md:flex justify-between items-start w-full mt-20">
+          <div className="px-5 py-2 rounded-full border border-white/10 bg-white/3 backdrop-blur-md flex items-center gap-3 drop-shadow-lg z-30 pointer-events-auto cursor-pointer hover:bg-white/8 transition-colors">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
+            <span className="text-xs uppercase tracking-[0.2em] text-white/80 font-medium">
+              Available for new opportunities
+            </span>
+          </div>
+        </div>
 
-          <h1 className="text-[5rem] md:text-[8rem] lg:text-[11rem] font-bold font-space-grotesk tracking-tighter text-white leading-[0.85] drop-shadow-2xl">
+        <div className={`z-20 flex flex-col items-start pointer-events-none
+            /* --- CONFIGURACIÓN MÓVIL --- */
+            absolute left-6
+            top-[62%]
+            md:static md:w-full md:mt-auto md:mb-0`}>
+
+          <h1 className="text-[13vw] sm:text-[5rem] md:text-[8rem] lg:text-[11rem] font-bold font-space-grotesk tracking-tighter text-white leading-[0.85] drop-shadow-2xl">
             JHAIR<br /> ZAMBRANO
           </h1>
 
-          <div className="mt-8 flex flex-col items-start border-l-2 border-white/30 pl-6 max-w-md">
-            <p className="text-base md:text-lg font-light text-white/70 leading-relaxed text-left">
+          <div className="mt-6 md:mt-8 flex flex-col items-start border-l-2 border-white/30 pl-4 md:pl-6 max-w-[80vw] md:max-w-md">
+            <p className="text-sm md:text-lg font-light text-white/70 leading-relaxed text-left">
               Software Engineering Student <span className="text-white/30">@</span> EPN <br />
               Bridging the gap between <span className="text-white font-medium">design</span> and <span className="text-white font-medium">engineering</span>.
             </p>
           </div>
 
         </div>
+        
+        {/* MÓVI*/}
+        <div className="flex md:hidden absolute top-1/2 -translate-y-1/2 right-4 flex-col items-center gap-4 text-white text-[10px] tracking-[0.25em] uppercase z-30 mix-blend-difference">
+          <span className="[writing-mode:vertical-rl] rotate-0 mb-2 animate-pulse drop-shadow-[0_0_12px_rgba(255,255,255,0.8)] font-medium text-[9px]">
+            Scroll to discover
+          </span>
+          <div className="w-0.5 h-12 bg-white animate-pulse shadow-[0_0_15px_rgba(255,255,255,0.9)] rounded-full" />
+        </div>
 
-        {/* Indicador de scroll minimalista y BRILLANTE */}
-        <div className="absolute bottom-16 right-8 md:right-16 flex flex-col items-center gap-4 text-white text-[10px] tracking-[0.25em] uppercase">
+        {/* ESCRITORIO*/}
+        <div className="hidden md:flex absolute bottom-16 right-16 flex-col items-center gap-4 text-white text-[10px] tracking-[0.25em] uppercase">
           <span className="[writing-mode:vertical-rl] rotate-0 mb-2 animate-pulse drop-shadow-[0_0_12px_rgba(255,255,255,0.8)] font-medium">
             Scroll to discover
           </span>
@@ -225,7 +252,6 @@ export default function Home() {
             </p>
           </div>
 
-          {/* GRID DE PROYECTOS */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 lg:gap-12">
             
             <ProjectCard
