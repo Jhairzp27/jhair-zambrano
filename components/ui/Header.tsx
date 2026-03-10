@@ -1,8 +1,8 @@
 "use client";
 
-import { useMotionValueEvent, useScroll, AnimatePresence, motion, Variants,} from "framer-motion";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll, Variants, } from "framer-motion";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FiGithub, FiLinkedin } from "react-icons/fi";
 import { SiFiverr } from "react-icons/si";
 
@@ -16,7 +16,7 @@ const HamburgerButton = ({
   return (
     <button
       onClick={toggle}
-      className="md:hidden z-70 p-2 -mr-2 text-white focus:outline-none group"
+      className="lg:hidden z-70 p-2 -mr-2 text-white focus:outline-none group cursor-pointer"
       aria-label="Toggle menu"
     >
       <div className="flex flex-col justify-center items-center gap-1.25 w-6 h-6">
@@ -146,7 +146,8 @@ export default function Header() {
         </Link>
 
         {/* NAVEGACIÓN DESKTOP */}
-        <nav className="hidden md:flex items-center gap-8 lg:gap-12 absolute left-1/2 -translate-x-1/2">
+        {/* hidden lg:flex (Se oculta en Móvil y Tablet, visible en Desktop) */}
+        <nav className="hidden lg:flex items-center gap-8 lg:gap-12 absolute left-1/2 -translate-x-1/2">
           {["About", "Stack", "Works"].map((item) => (
             <a
               key={item}
@@ -204,8 +205,8 @@ export default function Header() {
           <button
             className={`
               flex items-center justify-center
-              text-white border border-white/20 rounded-full 
-              text-[10px] md:text-xs tracking-[0.15em] uppercase font-bold 
+              text-white border border-white/20 rounded-full
+              text-[10px] md:text-xs tracking-[0.15em] uppercase font-bold
               hover:bg-white hover:text-black hover:border-white hover:shadow-[0_0_15px_rgba(255,255,255,0.3)]
               active:scale-95
               transition-all duration-100 ease-out
@@ -232,7 +233,7 @@ export default function Header() {
             animate="open"
             exit="closed"
             variants={overlayVariants}
-            className="fixed inset-0 z-50 bg-[#050505]/98 backdrop-blur-3xl md:hidden flex flex-col items-center justify-center"
+            className="fixed inset-0 z-50 bg-[#050505]/98 backdrop-blur-3xl lg:hidden flex flex-col items-center justify-center"
           >
             <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
@@ -262,7 +263,7 @@ export default function Header() {
 
             <motion.div
               variants={navListVariants}
-              className="flex items-center gap-10 mt-16 border-t border-white/10 pt-10 relative z-10"
+              className="flex sm:hidden items-center gap-10 mt-16 border-t border-white/10 pt-10 relative z-10"
             >
               <a
                 href="https://github.com/Jhairzp27"
