@@ -25,14 +25,6 @@ const PARALLAX_CONFIG = {
   LANDED_SCROLL_THRESHOLD: 0.95,
 } as const;
 
-const INTRO_SEQUENCE = [
-  { key: "Key j", delay: 1000 },
-  { key: "Key h", delay: 1300 },
-  { key: "Key a", delay: 1600 },
-  { key: "Key i", delay: 1900 },
-  { key: "Key r", delay: 2200 },
-] as const;
-
 // --- KEYFRAMES: DESKTOP (> 1024px) ---
 const DESKTOP_KEYFRAMES: readonly ScrollKeyframe[] = [
   { scroll: 0, tx: 10, ty: 7, scale: 1, rotX: 0, rotY: 0, rotZ: 0 },
@@ -41,27 +33,27 @@ const DESKTOP_KEYFRAMES: readonly ScrollKeyframe[] = [
   { scroll: 1600, tx: 0, ty: 40, scale: 0.5, rotX: -0.3, rotY: Math.PI, rotZ: -(Math.PI * 2) - Math.PI / 4 },
   { scroll: 2400, tx: 0, ty: 15, scale: 0.85, rotX: 0.35, rotY: Math.PI * 2, rotZ: -(Math.PI * 2) },
   { scroll: 3200, tx: 0, ty: 10, scale: 0.6, rotX: -0.2, rotY: Math.PI * 2.5, rotZ: -(Math.PI * 3) },
-  { scroll: 4500, tx: -23.5, ty: 38, scale: 0.81, rotX: -0.74, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
+  { scroll: 4500, tx: -23.5, ty: 33, scale: 0.81, rotX: -0.74, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
 ];
 
 // --- KEYFRAMES: MOBILE (< 768px) ---
 const MOBILE_KEYFRAMES: readonly ScrollKeyframe[] = [
-  { scroll: 0, tx: -15, ty: -2, scale: 1.9, rotX: Math.PI * 2 + 0.4, rotY: Math.PI / 2 + 0.4, rotZ: 0 },
+  { scroll: 0, tx: -15, ty: 2, scale: 1.9, rotX: Math.PI * 2 + 0.4, rotY: Math.PI / 2 + 0.4, rotZ: 0 },
   { scroll: 450, tx: 0, ty: 10, scale: 1.55, rotX: Math.PI + 0.2, rotY: Math.PI / 2, rotZ: 0 },
   { scroll: 800, tx: 0, ty: 0, scale: 1.55, rotX: 0.1, rotY: Math.PI / 4, rotZ: 0 },
   { scroll: 1600, tx: 0, ty: 45, scale: 1.5, rotX: -0.2, rotY: Math.PI, rotZ: -(Math.PI * 2) },
   { scroll: 2400, tx: 0, ty: 20, scale: 1.5, rotX: 0.3, rotY: Math.PI * 2, rotZ: 0 },
-  { scroll: 4500, tx: 0, ty: -15, scale: 1.44, rotX: -0.8, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
+  { scroll: 4500, tx: 0, ty: 15, scale: 1.44, rotX: -0.8, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
 ];
 
 // --- KEYFRAMES: TABLET (768px - 1024px) ---
 const TABLET_KEYFRAMES: readonly ScrollKeyframe[] = [
-  { scroll: 0,    tx: 0, ty: 0, scale: 1.3,  rotX: 0.1, rotY: 0, rotZ: 0 },
+  { scroll: 0,    tx: 0, ty: -2, scale: 1.3,  rotX: 0.1, rotY: 0, rotZ: 0 },
   { scroll: 450, tx: 0, ty: 10, scale: 1.55, rotX: Math.PI *2 + 0.2, rotY: Math.PI /2, rotZ: 0 },
   { scroll: 800, tx: 0, ty: 20, scale: 1.15, rotX: 0.2, rotY: (Math.PI /4) , rotZ: 0 },
   { scroll: 1600, tx: 0, ty: 45, scale: 1.5, rotX: -0.2, rotY: Math.PI, rotZ: -(Math.PI * 2) },
   { scroll: 2400, tx: 0, ty: 20, scale: 1.5, rotX: 0.3, rotY: Math.PI * 2, rotZ: 0 },
-  { scroll: 4500, tx: 0, ty: -15, scale: 1.44, rotX: -0.8, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
+  { scroll: 4500, tx: -1, ty: 30, scale: 1.44, rotX: -0.8, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
 ];
 
 export default function HeroCanvas() {
@@ -71,6 +63,8 @@ export default function HeroCanvas() {
 
   // Estado para responsive
   const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
+  
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
   const scrollState = useRef({
     tx: 0, ty: 0, scale: 1, rotX: 0, rotY: 0, rotZ: 0,
@@ -107,6 +101,37 @@ export default function HeroCanvas() {
     };
   }, []);
 
+  // --- DETECCIÓN EXACTA DEL TECLADO MÓVIL (Visual Viewport) ---
+  useEffect(() => {
+    if (!window.visualViewport) return;
+    const initialHeight = window.visualViewport.height;
+
+    const handleViewportResize = () => {
+      if (window.visualViewport!.scale > 1.05) {
+        setIsKeyboardOpen(false);
+        return;
+      }
+
+      const activeTag = document.activeElement?.tagName;
+      const isInputFocused = activeTag === "INPUT" || activeTag === "TEXTAREA";
+
+      // Solo si la altura se reduce MÁS de 150px Y hay un input activo, es el teclado.
+      if (window.visualViewport!.height < initialHeight - 150 && isInputFocused) {
+        setIsKeyboardOpen(true);
+      } else {
+        setIsKeyboardOpen(false);
+      }
+    };
+
+    window.visualViewport.addEventListener("resize", handleViewportResize);
+    window.visualViewport.addEventListener("scroll", handleViewportResize);
+    
+    return () => {
+      window.visualViewport?.removeEventListener("resize", handleViewportResize);
+      window.visualViewport?.removeEventListener("scroll", handleViewportResize);
+    }
+  }, []);
+
   // Selección de estrategia de animación
   const currentKeyframes = useMemo(() => {
     if (deviceType === 'mobile') return MOBILE_KEYFRAMES;
@@ -118,9 +143,22 @@ export default function HeroCanvas() {
   const applyTransforms = useCallback(() => {
     const s = scrollState.current;
 
+    // Variables copiadas para manipularlas
+    let { tx, ty, scale, rotX, rotY, rotZ } = s;
+
+    // Solo actúa si el teclado está abierto Y es móvil
+    if (isKeyboardOpen && deviceType === 'mobile') {
+      tx = 0;
+      ty = 50;
+      scale = 1.3;
+      rotX = -0.8;
+      rotY = Math.PI * 4;
+      rotZ = -(Math.PI * 4) - 0.04;
+    }
+
     // Aplicar al contenedor DOM (Posición y Escala)
     if (containerRef.current) {
-      containerRef.current.style.transform = `translate3d(${s.tx}vw, ${s.ty}vh, 0) scale(${s.scale})`;
+      containerRef.current.style.transform = `translate3d(${tx}vw, ${ty}vh, 0) scale(${scale})`;
     }
 
     // Aplicar al objeto 3D (Rotación + Parallax)
@@ -131,11 +169,31 @@ export default function HeroCanvas() {
       const isLanded = scrollProgressRef.current > PARALLAX_CONFIG.LANDED_SCROLL_THRESHOLD;
       const factor = isLanded ? PARALLAX_CONFIG.LANDED_INTENSITY : PARALLAX_CONFIG.DEFAULT_INTENSITY;
 
-      keyboardRef.current.rotation.x = s.rotX + mouse.y * factor;
-      keyboardRef.current.rotation.y = s.rotY + mouse.x * factor;
-      keyboardRef.current.rotation.z = s.rotZ;
+      keyboardRef.current.rotation.x = rotX + mouse.y * factor;
+      keyboardRef.current.rotation.y = rotY + mouse.x * factor;
+      keyboardRef.current.rotation.z = rotZ;
     }
-  }, [deviceType]);
+  }, [deviceType, isKeyboardOpen]);
+
+  // --- MANEJADOR DE TRANSICIONES SUAVES (Anti-Agressividad) ---
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    if (isKeyboardOpen && deviceType === 'mobile') {
+      containerRef.current.style.transition = "transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)";
+      applyTransforms();
+    } else {
+      containerRef.current.style.transition = "transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)";
+      applyTransforms();
+      
+      const timer = setTimeout(() => {
+        if (containerRef.current && !isKeyboardOpen) {
+          containerRef.current.style.transition = "none";
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isKeyboardOpen, deviceType, applyTransforms]);
 
   // --- INICIALIZACIÓN ---
   useEffect(() => {
@@ -231,14 +289,6 @@ export default function HeroCanvas() {
       keyboard.scale.y = 0.5;
       keyboard.scale.z = 0.5;
     }
-
-    // Ejecutar Intro Sequence (Solo una vez)
-    for (const { key, delay } of INTRO_SEQUENCE) {
-      setTimeout(() => {
-        app.emitEvent("keyDown", key);
-        setTimeout(() => app.emitEvent("keyUp", key), 200);
-      }, delay);
-    }
   }
 
   // Estilos iniciales para JSX (evitar FOUC en el contenedor)
@@ -251,7 +301,8 @@ export default function HeroCanvas() {
         transform: `translate3d(${initial.tx}vw, ${initial.ty}vh, 0) scale(${initial.scale})`,
         willChange: "transform", // Hint para el navegador
       }}
-      className="fixed inset-0 z-10 w-screen h-screen flex items-center justify-center pointer-events-none"
+      // 🔥 CAMBIO CLAVE DE CAPAS: Le ponemos z-20 y h-[100dvh]
+      className="fixed inset-0 z-20 w-screen h-dvh flex items-center justify-center pointer-events-none"
     >
       {/* Contenedor más grande para evitar clipping en rotaciones extremas */}
       <div className="w-[150vw] h-[150vh] flex items-center justify-center">
