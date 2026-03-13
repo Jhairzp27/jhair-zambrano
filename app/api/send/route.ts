@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   try {
+    const resend = new Resend(process.env.RESEND_API_KEY!);
     // 1. Extraemos los datos que el usuario llenó en el formulario
     const body = await request.json();
     const { name, email, message } = body;
