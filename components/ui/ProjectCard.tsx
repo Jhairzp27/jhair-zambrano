@@ -26,17 +26,21 @@ export default function ProjectCard({
 }: ProjectCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Manejadores para reproducir solo al hacer hover (Ahorra recursos)
+  // Manejadores para reproducir solo al hacer hover
   const handleMouseEnter = () => {
     if (videoRef.current) {
-      videoRef.current.play();
+      // El catch atrapa el NotSupportedError y evita que la pantalla se rompa
+      videoRef.current.play().catch((error) => {
+        console.warn("Reproducción pausada o cargando:", error);
+      });
     }
   };
 
   const handleMouseLeave = () => {
     if (videoRef.current) {
       videoRef.current.pause();
-      videoRef.current.currentTime = 0; // Reinicia el video
+      // Opcional: Si reseteas a 0, asegúrate de no romper la carga
+      // videoRef.current.currentTime = 0;
     }
   };
 
@@ -56,8 +60,11 @@ export default function ProjectCard({
             muted
             loop
             playsInline
+            preload="none"
+            controlsList="nodownload"
+            onContextMenu={(e) => e.preventDefault()}
             className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500 grayscale group-hover:grayscale-0"
-            poster={imageSrc} // Imagen de carga
+            poster={imageSrc}
           />
         ) : (
           // Fallback si no hay video (Placeholder)

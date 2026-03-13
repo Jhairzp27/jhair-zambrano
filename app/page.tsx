@@ -1,8 +1,8 @@
 import HeroCanvas from "@/components/3d/HeroCanvas";
-import SystemControls from '@/components/ui/SystemControls';
-import ProjectCard from "@/components/ui/ProjectCard";
 import CredentialItem from "@/components/ui/CredentialItems";
 import Footer from "@/components/ui/Footer";
+import ProjectCard from "@/components/ui/ProjectCard";
+import SystemControls from '@/components/ui/SystemControls';
 
 export default function Home() {
   return (
@@ -261,7 +261,9 @@ export default function Home() {
               techStack={["Java", "Jakarta EE", "PostgreSQL", "UML Design", "MVC", "Docker", "CI/CD", "Git"]}
               repoLink="https://github.com/Jhairzp27/Habit-Tracker"
               demoLink="https://habit-tracker-jf6y.onrender.com/"
-            />
+              videoSrc="/api/video?path=/Portafolio/HabitTrackerx3.webm"
+              imageSrc="/posters/HabitTracker.png"
+              />
 
             <ProjectCard
               title="Magnus Audit Digital Transformation"
@@ -269,7 +271,9 @@ export default function Home() {
               description="Led the digital modernization for an accounting firm in Ecuador. Implemented corporate infrastructure (Email/Hosting), optimized SEO ranking strategies, and integrated Google Analytics for business intelligence."
               techStack={["Web Design", "Mockups", "Figma" , "SEO", "Google Analytics", "Digital Strategy", "UX/UI"]}
               demoLink="https://www.magnusauditec.com/"
-            />
+              videoSrc="/api/video?path=/Portafolio/Magnusx2.webm"
+              imageSrc="/posters/Magnus.png"
+              />
 
             <ProjectCard
               title="Disaccort Corp. Platform"
@@ -278,14 +282,17 @@ export default function Home() {
               techStack={["HTML/CSS", "JavaScript", "Responsive Design", "Brand Identity", "Git"]}
               repoLink="https://github.com/Jhairzp27/Disaccort"
               demoLink="https://jhairzp27.github.io/Disaccort/"
-            />
+              videoSrc="/api/video?path=/Portafolio/Disaccort.webm"
+              imageSrc="/posters/Disaccort.png"
+              />
 
             <ProjectCard
               title="Transport Unit Analytics"
               category="Data Automation"
               description="Developed an internal automated tool to process transport unit logistics. Replaced manual Excel workflows, generating statistical insights on fleet efficiency. (Proprietary Tool)."
               techStack={["Python", "Pandas", "Excel Automation", "Data Science", "Data Analytics","Internal Tool"]}
-            />
+              // videoSrc="/api/video?path=/Portafolio/"
+              />
 
             <ProjectCard
               title="CineMax Architecture"
@@ -293,6 +300,8 @@ export default function Home() {
               description="Collaborative development of a cinema management system focusing on modularity and design patterns. Led the architectural division of modules to ensure decoupled and maintainable code."
               techStack={["Software Design", "Modular Arch", "Team Leadership", "Git Flow", "Design Patterns"]}
               repoLink="https://github.com/CineMax-Diseno-De-Software-GR3SW/CineMax"
+              videoSrc="/api/video?path=/Portafolio/CineMax2.webm"
+              imageSrc="/posters/CineMax.png"
             />
 
             {/* COMING SOON / PROYECTO CLASIFICADO */}
