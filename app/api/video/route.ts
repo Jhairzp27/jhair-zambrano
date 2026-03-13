@@ -1,5 +1,5 @@
+import { getImageKit } from '@/lib/imagekit'; // <-- Importamos la función
 import { NextResponse } from 'next/server';
-import { imagekit } from '@/lib/imagekit';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -11,15 +11,15 @@ export async function GET(request: Request) {
 
   if (!isDevelopment) {
     if (!referer || !referer.includes(myDomain)) {
-      return new NextResponse('ACCESO DENEGADO: Intento de descarga bloqueado.', { status: 403 });
+      return new NextResponse('ACCESO DENEGADO', { status: 403 });
     }
   }
 
   if (!path) {
-    return new NextResponse('Falta la ruta del video', { status: 400 });
+    return new NextResponse('Falta la ruta', { status: 400 });
   }
 
-  const signedUrl = imagekit.url({
+  const signedUrl = getImageKit().url({
     path: path,
     signed: true,
     expireSeconds: 180,
