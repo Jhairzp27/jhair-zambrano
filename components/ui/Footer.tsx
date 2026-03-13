@@ -109,6 +109,7 @@ export default function Footer() {
   const [status, setStatus] = useState<
     "idle" | "sending" | "success" | "error"
   >("idle");
+  const [inputError, setInputError] = useState<string>("");
 
   // ESTADO BATERÍA REAL
   const [batteryLevel, setBatteryLevel] = useState(100);
@@ -146,13 +147,37 @@ export default function Footer() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (inputError) setInputError("");
   };
 
-  // NUEVA FUNCIÓN: Unificada para usarla en el teclado y en el botón visual
   const handleNextStep = () => {
-    if (step === "name" && formData.name.trim()) setStep("email");
-    else if (step === "email" && formData.email.trim()) setStep("message");
-    else if (step === "message" && formData.message.trim()) {
+    setInputError(""); // Limpiamos errores previos
+
+    if (step === "name") {
+      if (!formData.name.trim()) {
+        setInputError("ERR: NAME_REQUIRED - Identity cannot be empty.");
+        return;
+      }
+      setStep("email");
+    }
+    else if (step === "email") {
+      if (!formData.email.trim()) {
+        setInputError("ERR: EMAIL_REQUIRED - Cannot reach you without an address.");
+        return;
+      }
+      // Regex para validar formato de email (ejemplo@dominio.com)
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        setInputError("ERR: INVALID_EMAIL_FORMAT - Check syntax.");
+        return;
+      }
+      setStep("message");
+    }
+    else if (step === "message") {
+      if (!formData.message.trim()) {
+        setInputError("ERR: MESSAGE_EMPTY - Payload missing.");
+        return;
+      }
       handleSubmit();
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
@@ -167,16 +192,34 @@ export default function Footer() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setStatus("sending");
-    setTimeout(() => {
-      setStatus("success");
-      setTimeout(() => {
-        setFormData({ name: "", email: "", message: "" });
-        setStatus("idle");
-        setStep("name");
-      }, 5000);
-    }, 2000);
+
+    try {
+      const response = await fetch("/api/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setStatus("success");
+        
+        setTimeout(() => {
+          setFormData({ name: "", email: "", message: "" });
+          setStatus("idle");
+          setStep("name");
+        }, 5000);
+      } else {
+        console.error("Error del servidor al enviar correo");
+        setStatus("error");
+      }
+    } catch (error) {
+      console.error("Error de red al enviar correo:", error);
+      setStatus("error");
+    }
   };
 
   const dateString = new Date().toLocaleDateString("en-US", {
@@ -195,7 +238,6 @@ export default function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 items-end">
           
           {/* COLUMNA 1: TEXTO (Arriba en móvil, Derecha en Desktop) */}
-          {/* 🔥 AGREGADO: relative z-30 para quedar SOBRE el teclado */}
           <div className="flex flex-col justify-end h-full order-1 lg:order-2 relative z-30">
             <h2 className="text-5xl md:text-7xl font-space-grotesk font-bold text-white leading-[0.85] tracking-tighter mb-6">
               LET&apos;S <br />
@@ -308,6 +350,13 @@ export default function Footer() {
                           </button>
                         </div>
                       </div>
+                      
+                      {inputError && (
+                        <div className="mt-2 ml-8 text-[10px] md:text-xs text-[#ff5f56] font-mono animate-pulse flex items-center gap-2">
+                          <span>[!]</span>
+                          <span>{inputError}</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
