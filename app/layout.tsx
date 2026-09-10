@@ -1,8 +1,9 @@
+import { KeyboardProvider } from "@/components/context/KeyboardContext";
+import { SoundProvider } from "@/components/context/SoundContext";
 import Header from "@/components/ui/Header";
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import { SoundProvider } from "@/components/context/SoundContext";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk" });
@@ -19,10 +20,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
+      <head>
+        {/* Arranca la descarga del modelo 3D de inmediato (en paralelo con el runtime),
+            en vez de esperar a que monte el componente Spline. */}
+        <link rel="preload" href="/models/keyboard.splinecode" as="fetch" crossOrigin="anonymous" />
+      </head>
       <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased bg-black text-white`}>
         <SoundProvider>
-          <Header />
-          {children}
+          <KeyboardProvider>
+            <Header />
+            {children}
+          </KeyboardProvider>
         </SoundProvider>
       </body>
     </html>
