@@ -4,7 +4,9 @@ import Spline from "@splinetool/react-spline";
 import type { Application, SPEObject } from "@splinetool/runtime";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useKeyboard } from "@/components/context/KeyboardContext";
+import KeyboardSkeleton from "./KeyboardSkeleton";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -26,15 +28,29 @@ const PARALLAX_CONFIG = {
 } as const;
 
 // --- KEYFRAMES: DESKTOP (> 1024px) ---
-const DESKTOP_KEYFRAMES: readonly ScrollKeyframe[] = [
-  { scroll: 0, tx: 10, ty: 7, scale: 1, rotX: 0, rotY: 0, rotZ: 0 },
-  { scroll: 120, tx: 10, ty: 2, scale: 0.9, rotX: 0.1, rotY: 0.1, rotZ: -0.1 },
+// Los dos primeros frames (hero) reciben un offset dinámico (dTx/dTy) para anclar
+// el teclado a la "R" del apellido sin importar el tamaño de pantalla. Ver alignToSurname().
+const makeDesktopKeyframes = (dTx: number, dTy: number): readonly ScrollKeyframe[] => [
+  { scroll: 0, tx: 10 + dTx, ty: 7 + dTy, scale: 1, rotX: 0, rotY: 0, rotZ: 0 },
+  { scroll: 120, tx: 10 + dTx, ty: 2 + dTy, scale: 0.9, rotX: 0.1, rotY: 0.1, rotZ: -0.1 },
   { scroll: 800, tx: 0, ty: 10, scale: 0.75, rotX: 0, rotY: Math.PI / 2, rotZ: -(Math.PI * 2) },
   { scroll: 1600, tx: 0, ty: 40, scale: 0.5, rotX: -0.3, rotY: Math.PI, rotZ: -(Math.PI * 2) - Math.PI / 4 },
   { scroll: 2400, tx: 0, ty: 15, scale: 0.85, rotX: 0.35, rotY: Math.PI * 2, rotZ: -(Math.PI * 2) },
-  { scroll: 3200, tx: 0, ty: 10, scale: 0.6, rotX: -0.2, rotY: Math.PI * 2.5, rotZ: -(Math.PI * 3) },
+  // ~3270 es la sección STACK: el teclado sale casi entero por la izquierda
+  // para no tapar el cerebro (que ocupa la columna izquierda).
+  { scroll: 3200, tx: -62, ty: 30, scale: 0.42, rotX: -0.2, rotY: Math.PI * 2.5, rotZ: -(Math.PI * 3) },
   { scroll: 4500, tx: -23.5, ty: 33, scale: 0.81, rotX: -0.74, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
 ];
+
+// Calibración del anclaje del teclado en el hero (desktop).
+// El teclado 3D vive dentro de un canvas de 150vw, por lo que su centro visual está
+// desplazado respecto al centro del contenedor por una fracción ~constante del viewport.
+// KB_CENTER_X es esa fracción + 0.5: al restarla a la fracción horizontal objetivo
+// (el centro de "RANO") obtenemos el tx que coloca el teclado justo sobre esas letras,
+// sin importar el ancho de pantalla. KB_CENTER_Y hace lo análogo en vertical (mantiene
+// el encuadre a 1440x900 y sigue la altura del apellido).
+const KB_CENTER_X = 0.222;
+const KB_CENTER_Y = 0.459;
 
 // --- KEYFRAMES: MOBILE (< 768px) ---
 const MOBILE_KEYFRAMES: readonly ScrollKeyframe[] = [
@@ -43,6 +59,8 @@ const MOBILE_KEYFRAMES: readonly ScrollKeyframe[] = [
   { scroll: 800, tx: 0, ty: 0, scale: 1.55, rotX: 0.1, rotY: Math.PI / 4, rotZ: 0 },
   { scroll: 1600, tx: 0, ty: 45, scale: 1.5, rotX: -0.2, rotY: Math.PI, rotZ: -(Math.PI * 2) },
   { scroll: 2400, tx: 0, ty: 20, scale: 1.5, rotX: 0.3, rotY: Math.PI * 2, rotZ: 0 },
+  // ~3270 = sección STACK: casi fuera por la izquierda para no tapar el cerebro ni la tarjeta
+  { scroll: 3300, tx: -62, ty: 40, scale: 0.7, rotX: -0.2, rotY: Math.PI * 2.6, rotZ: -(Math.PI * 3) },
   { scroll: 4500, tx: 0, ty: 15, scale: 1.44, rotX: -0.8, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
 ];
 
@@ -56,15 +74,31 @@ const TABLET_KEYFRAMES: readonly ScrollKeyframe[] = [
   { scroll: 4500, tx: -1, ty: 30, scale: 1.44, rotX: -0.8, rotY: Math.PI * 4, rotZ: -(Math.PI * 4) - 0.04 },
 ];
 
+// sessionStorage no emite eventos dentro de la misma pestaña: basta con leerlo al renderizar.
+const noopSubscribe = () => () => {};
+const readKeyboardShown = () => {
+  try {
+    return sessionStorage.getItem("kb-shown") === "1";
+  } catch {
+    return false; // modo privado o storage bloqueado
+  }
+};
+
 export default function HeroCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const splineAppRef = useRef<Application | null>(null);
   const keyboardRef = useRef<SPEObject | null>(null);
+  const { markSceneReady, setLightsOn } = useKeyboard();
 
   // Estado para responsive
   const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
   
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [isSplineLoaded, setIsSplineLoaded] = useState(false);
+
+  // El skeleton solo se muestra si el teclado NO se ha mostrado aún en esta sesión.
+  // En el servidor y durante la hidratación vale null: no se pinta nada hasta leer sessionStorage.
+  const keyboardShownBefore = useSyncExternalStore(noopSubscribe, readKeyboardShown, () => null);
 
   const scrollState = useRef({
     tx: 0, ty: 0, scale: 1, rotX: 0, rotY: 0, rotZ: 0,
@@ -132,12 +166,45 @@ export default function HeroCanvas() {
     }
   }, []);
 
+  // Offset del hero en desktop para anclar el teclado a la "R" del apellido.
+  const [heroOffset, setHeroOffset] = useState({ dTx: 0, dTy: 0 });
+
+  useEffect(() => {
+    // Móvil y tablet usan keyframes propios que no leen este offset.
+    if (deviceType !== "desktop") return;
+    const alignToSurname = () => {
+      const anchor = document.getElementById("surname-anchor");
+      if (!anchor) return;
+      const r = anchor.getBoundingClientRect();
+      if (!r.width) return;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      // Objetivo horizontal: el borde IZQUIERDO del teclado se alinea con el inicio de la
+      // "R", de modo que el teclado quede sobre "RANO" y se extienda a la derecha.
+      const rLeftFracX = r.left / vw;
+      // Vertical: seguimos la parte superior de la "R" (a scroll 0).
+      const fracTop = (r.top + window.scrollY) / vh;
+      const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+      const txAbs = clamp((rLeftFracX - KB_CENTER_X) * 100, 0, 55);
+      const tyAbs = clamp((fracTop - KB_CENTER_Y) * 100, -3, 18);
+      // makeDesktopKeyframes suma 10/7 base, por eso guardamos el delta.
+      setHeroOffset({ dTx: txAbs - 10, dTy: tyAbs - 7 });
+    };
+    alignToSurname();
+    // Re-medir cuando la fuente (Space Grotesk) termine de cargar: cambia el ancho de la "R".
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(alignToSurname);
+    }
+    window.addEventListener("resize", alignToSurname);
+    return () => window.removeEventListener("resize", alignToSurname);
+  }, [deviceType]);
+
   // Selección de estrategia de animación
   const currentKeyframes = useMemo(() => {
     if (deviceType === 'mobile') return MOBILE_KEYFRAMES;
     if (deviceType === 'tablet') return TABLET_KEYFRAMES;
-    return DESKTOP_KEYFRAMES;
-  }, [deviceType]);
+    return makeDesktopKeyframes(heroOffset.dTx, heroOffset.dTy);
+  }, [deviceType, heroOffset]);
 
   // --- 3. LOGICA DE RENDERIZADO ---
   const applyTransforms = useCallback(() => {
@@ -231,6 +298,35 @@ export default function HeroCanvas() {
     [deviceType, applyTransforms],
   );
 
+  // --- AUTO ON/OFF: el teclado se enciende al salir del hero y se apaga al volver arriba.
+  // Detectamos el CRUCE del umbral (con histéresis) para no pelear con el botón manual:
+  // dentro de la zona encendida el usuario puede apagarlo a mano y se respeta.
+  useEffect(() => {
+    const ON_AT = 0.55;   // fracción del alto del hero
+    const OFF_AT = 0.25;  // apagar solo al volver bien arriba
+    let insideHero = true;
+
+    const onScroll = () => {
+      const y = window.scrollY;
+      const h = window.innerHeight || 1;
+      if (insideHero && y > h * ON_AT) {
+        insideHero = false;
+        setLightsOn(true);
+      } else if (!insideHero && y < h * OFF_AT) {
+        insideHero = true;
+        setLightsOn(false);
+      }
+    };
+
+    // Estado inicial explícito: apagado si cargamos dentro del hero.
+    const h0 = window.innerHeight || 1;
+    insideHero = window.scrollY < h0 * ON_AT;
+    setLightsOn(!insideHero);
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [setLightsOn]);
+
   // --- 5. ORQUESTACIÓN DE ANIMACIONES (GSAP + ScrollTrigger) ---
   useEffect(() => {
     const tl = gsap.timeline({
@@ -272,7 +368,6 @@ export default function HeroCanvas() {
     };
   }, [currentKeyframes, handleMouseMove, applyTransforms]);
 
-  // --- 6. CARGA DE ESCENA (Spline Events) ---
   function onSplineLoad(app: Application) {
     splineAppRef.current = app;
     const keyboard = app.findObjectByName("Keyboard");
@@ -283,11 +378,19 @@ export default function HeroCanvas() {
       keyboard.rotation.x = initial.rotX;
       keyboard.rotation.y = initial.rotY;
       keyboard.rotation.z = initial.rotZ;
-      // La escala la maneja el contenedor CSS para mejor performance,
-      // pero si Spline la requiere interna, se puede setear aquí.
       keyboard.scale.x = 0.5;
       keyboard.scale.y = 0.5;
       keyboard.scale.z = 0.5;
+    }
+
+    // Desde aquí el botón de luces de SystemControls ya puede enviar sus teclas a la escena.
+    markSceneReady();
+
+    setIsSplineLoaded(true);
+    try {
+      sessionStorage.setItem("kb-shown", "1");
+    } catch {
+      // sessionStorage no disponible (modo privado, etc.) — no es crítico
     }
   }
 
@@ -299,13 +402,21 @@ export default function HeroCanvas() {
       ref={containerRef}
       style={{
         transform: `translate3d(${initial.tx}vw, ${initial.ty}vh, 0) scale(${initial.scale})`,
-        willChange: "transform", // Hint para el navegador
+        willChange: "transform",
       }}
-      // 🔥 CAMBIO CLAVE DE CAPAS: Le ponemos z-20 y h-[100dvh]
-      className="fixed inset-0 z-20 w-screen h-dvh flex items-center justify-center pointer-events-none"
+      className="fixed inset-0 z-15 w-screen h-dvh flex items-center justify-center pointer-events-none"
     >
-      {/* Contenedor más grande para evitar clipping en rotaciones extremas */}
-      <div className="w-[150vw] h-[150vh] flex items-center justify-center">
+      {/* Skeleton SVG mientras carga Spline (solo si el teclado no se ha mostrado antes) */}
+      {keyboardShownBefore === false && (
+        <KeyboardSkeleton isLoaded={isSplineLoaded} />
+      )}
+
+      {/* Contenedor del modelo 3D */}
+      <div
+        className={`w-[150vw] h-[150vh] flex items-center justify-center transition-opacity duration-[1500ms] ease-out ${
+          isSplineLoaded ? "opacity-100" : "opacity-0"
+        }`}
+      >
         <Spline scene="/models/keyboard.splinecode" onLoad={onSplineLoad} />
       </div>
     </div>
