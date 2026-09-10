@@ -4,142 +4,10 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type RefO
 
 /* ================================= Datos ================================= */
 
-type Level = "primary" | "secondary" | "learning";
-type Vec3 = readonly [number, number, number];
-
-interface Skill {
-  name: string;
-  category: string;
-  level: Level;
-}
-
-interface Group {
-  cortex: string;
-  /** Qué hace esa región: es el subtítulo del título dentro del cerebro. */
-  role: string;
-  rgb: string;
-  /** Centro y radios de la nube de neuronas del grupo (x → derecha, y ↓, z frente → nuca). */
-  center: Vec3;
-  spread: Vec3;
-}
-
-/**
- * Cada grupo vive en la región que hace ese trabajo en un cerebro real y tiene un tono propio
- * de la paleta. El orden es el del recorrido: barre el cerebro de la frente a la nuca.
- */
-const GROUPS: Record<string, Group> = {
-  Architecture: {
-    cortex: "frontal lobe", role: "planning", rgb: "249,115,22",
-    center: [0.14, -0.14, -0.58], spread: [0.42, 0.24, 0.26],
-  },
-  "Soft Skills": {
-    cortex: "temporal lobe", role: "language & relationships", rgb: "52,211,153",
-    center: [0.5, 0.24, -0.14], spread: [0.16, 0.14, 0.34],
-  },
-  Backend: {
-    cortex: "motor cortex", role: "execution", rgb: "252,211,77",
-    center: [0.16, -0.44, -0.06], spread: [0.42, 0.14, 0.2],
-  },
-  "Cloud & Data": {
-    cortex: "parietal lobe", role: "integration", rgb: "251,113,133",
-    center: [0.14, -0.32, 0.42], spread: [0.42, 0.18, 0.22],
-  },
-  Frontend: {
-    cortex: "occipital lobe", role: "perception", rgb: "245,228,196",
-    center: [0.2, -0.06, 0.72], spread: [0.38, 0.24, 0.16],
-  },
-  Tooling: {
-    cortex: "cerebellum", role: "coordination", rgb: "205,127,80",
-    center: [0, 0.5, 0.66], spread: [0.44, 0.12, 0.2],
-  },
-};
+// Para agregar o quitar habilidades solo se edita lib/skills.ts (ahí está la guía).
+import { GROUPS, SKILLS, SYNAPSES, type Level, type Skill, type Vec3 } from "@/lib/skills";
 
 const GROUP_NAMES = Object.keys(GROUPS);
-
-const SKILLS: Skill[] = [
-  { name: "Java", category: "Backend", level: "primary" },
-  { name: "Jakarta EE", category: "Backend", level: "primary" },
-  { name: "JPA", category: "Backend", level: "primary" },
-  { name: "Python", category: "Backend", level: "primary" },
-  { name: "Pandas", category: "Backend", level: "primary" },
-  { name: "Node.js", category: "Backend", level: "secondary" },
-  { name: "PHP", category: "Backend", level: "learning" },
-
-  { name: "UML", category: "Architecture", level: "primary" },
-  { name: "Design Patterns", category: "Architecture", level: "primary" },
-  { name: "SOLID", category: "Architecture", level: "primary" },
-  { name: "Clean Code", category: "Architecture", level: "primary" },
-  { name: "OOP", category: "Architecture", level: "primary" },
-  { name: "Requirements", category: "Architecture", level: "primary" },
-  { name: "SonarQube", category: "Architecture", level: "learning" },
-
-  { name: "HTML/CSS", category: "Frontend", level: "primary" },
-  { name: "JavaScript", category: "Frontend", level: "primary" },
-  { name: "Responsive", category: "Frontend", level: "primary" },
-  { name: "TypeScript", category: "Frontend", level: "secondary" },
-  { name: "React", category: "Frontend", level: "secondary" },
-  { name: "Next.js", category: "Frontend", level: "secondary" },
-  { name: "Tailwind", category: "Frontend", level: "secondary" },
-
-  { name: "PostgreSQL", category: "Cloud & Data", level: "primary" },
-  { name: "DB Modeling", category: "Cloud & Data", level: "primary" },
-  { name: "Supabase", category: "Cloud & Data", level: "secondary" },
-  { name: "Lambda", category: "Cloud & Data", level: "learning" },
-  { name: "AWS S3", category: "Cloud & Data", level: "learning" },
-  { name: "Cognito", category: "Cloud & Data", level: "learning" },
-  { name: "DynamoDB", category: "Cloud & Data", level: "learning" },
-  { name: "Boto3", category: "Cloud & Data", level: "learning" },
-
-  { name: "Git", category: "Tooling", level: "primary" },
-  { name: "Scrum", category: "Tooling", level: "primary" },
-  { name: "Postman", category: "Tooling", level: "secondary" },
-  { name: "API Testing", category: "Tooling", level: "secondary" },
-  { name: "JUnit", category: "Tooling", level: "secondary" },
-  { name: "Docker", category: "Tooling", level: "learning" },
-  { name: "CI/CD", category: "Tooling", level: "learning" },
-
-  { name: "Teamwork", category: "Soft Skills", level: "primary" },
-  { name: "Problem Solving", category: "Soft Skills", level: "primary" },
-  { name: "Adaptability", category: "Soft Skills", level: "primary" },
-  { name: "Accountability", category: "Soft Skills", level: "primary" },
-  { name: "Project Management", category: "Soft Skills", level: "primary" },
-  { name: "Event Planning", category: "Soft Skills", level: "primary" },
-];
-
-/** Relación entre dos skills. Las que cruzan de un grupo a otro llevan el porqué: es lo que se lee en la tarjeta. */
-type Synapse = readonly [a: string, b: string, why?: string];
-
-const SYNAPSES: Synapse[] = [
-  // Dentro de cada región
-  ["Java", "Jakarta EE"], ["Jakarta EE", "JPA"], ["Python", "Pandas"],
-  ["UML", "Design Patterns"], ["Design Patterns", "SOLID"], ["SOLID", "Clean Code"], ["OOP", "SOLID"],
-  ["UML", "Requirements"], ["Clean Code", "SonarQube"],
-  ["HTML/CSS", "JavaScript"], ["HTML/CSS", "Responsive"], ["JavaScript", "TypeScript"],
-  ["TypeScript", "React"], ["React", "Next.js"], ["Next.js", "Tailwind"], ["Tailwind", "Responsive"],
-  ["PostgreSQL", "DB Modeling"], ["PostgreSQL", "Supabase"], ["Lambda", "AWS S3"],
-  ["Lambda", "DynamoDB"], ["Lambda", "Cognito"], ["Boto3", "AWS S3"],
-  ["Git", "CI/CD"], ["CI/CD", "Docker"], ["Postman", "API Testing"], ["JUnit", "API Testing"],
-  ["Project Management", "Accountability"], ["Problem Solving", "Adaptability"], ["Teamwork", "Event Planning"],
-
-  // Entre regiones
-  ["JPA", "PostgreSQL", "ORM persisting to the relational database"],
-  ["Python", "Boto3", "AWS SDK for Python"],
-  ["Java", "OOP", "the paradigm it is built on"],
-  ["Jakarta EE", "Design Patterns", "dependency injection, DAO and MVC"],
-  ["Java", "JUnit", "unit testing the code"],
-  ["Node.js", "JavaScript", "the same language on server and client"],
-  ["Next.js", "Supabase", "auth and data for web apps"],
-  ["React", "Design Patterns", "component composition"],
-  ["UML", "DB Modeling", "from diagram to schema"],
-  ["SonarQube", "CI/CD", "quality gates in the pipeline"],
-  ["Requirements", "Scrum", "user stories and backlog"],
-  ["CI/CD", "Lambda", "automated deployment"],
-  ["Scrum", "Teamwork", "sprint-based collaboration"],
-  ["Scrum", "Project Management", "iterative delivery"],
-  ["Git", "Teamwork", "branches, PRs and code review"],
-  ["Requirements", "Project Management", "scope and deliverables"],
-  ["Problem Solving", "Design Patterns", "proven solutions to recurring problems"],
-];
 
 const DWELL_MS = 7000; // tiempo de lectura por grupo
 const TRAVEL_MS = 1200; // giro hacia la siguiente región
@@ -323,7 +191,8 @@ const NODES = placeNodes();
 const VIEWS: Record<string, { yaw: number; pitch: number }> = Object.fromEntries(
   GROUP_NAMES.map((g) => {
     const [x, y, z] = GROUPS[g].center;
-    const lateral = x + VIEW_BIAS;
+    // Las regiones del hemisferio izquierdo (x < 0) se miran desde la izquierda.
+    const lateral = x + Math.sign(x || 1) * VIEW_BIAS;
     return [
       g,
       {
