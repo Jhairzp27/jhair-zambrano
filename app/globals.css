@@ -1,5 +1,33 @@
 @import "tailwindcss";
 
+/*
+ * Estado "encendido" de las tarjetas: hover real en dispositivos con mouse o, en táctil,
+ * data-active="true" cuando el scroll lo activa (ver components/utils/useScrollActive.ts).
+ * `lit:`      → elementos dentro de un `.group` encendido.
+ * `lit-self:` → el propio elemento encendido.
+ */
+@custom-variant lit {
+  @media (hover: hover) {
+    &:where(.group:hover *) {
+      @slot;
+    }
+  }
+  &:where(.group[data-active="true"] *) {
+    @slot;
+  }
+}
+
+@custom-variant lit-self {
+  @media (hover: hover) {
+    &:hover {
+      @slot;
+    }
+  }
+  &[data-active="true"] {
+    @slot;
+  }
+}
+
 :root {
   --background: #050505;
   --foreground: #ededed;

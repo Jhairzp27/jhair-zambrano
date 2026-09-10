@@ -1,6 +1,7 @@
 "use client";
 
 import { FiAward, FiLoader, FiCheckCircle } from "react-icons/fi";
+import { useScrollActive } from "@/components/utils/useScrollActive";
 
 interface CredentialItemProps {
     title: string;
@@ -19,17 +20,24 @@ export default function CredentialItem({
     progress = 0,
     logoText,
 }: CredentialItemProps) {
+    // En desktop se enciende con hover; en móvil, al cruzar la franja activa del scroll.
+    const [ref, active] = useScrollActive<HTMLDivElement>();
+
     return (
-    <div className="group relative flex items-center gap-6 p-6 bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-orange-500/30 hover:bg-white/[0.07] transition-all duration-300">
+    <div
+        ref={ref}
+        data-active={active}
+        className="group relative flex items-center gap-6 p-6 bg-white/5 border border-white/10 rounded-xl overflow-hidden lit-self:border-orange-500/30 lit-self:bg-white/[0.07] transition-all duration-300"
+    >
       {/* 1. ICONO / LOGO (Minimalista) */}
-        <div className="hidden sm:flex items-center justify-center w-12 h-12 rounded-full bg-black/50 border border-white/10 text-white/50 font-space-grotesk font-bold text-lg group-hover:text-orange-500 group-hover:border-orange-500/50 transition-colors">
+        <div className="hidden sm:flex items-center justify-center w-12 h-12 rounded-full bg-black/50 border border-white/10 text-white/50 font-space-grotesk font-bold text-lg lit:text-orange-500 lit:border-orange-500/50 transition-colors">
             {logoText || <FiAward />}
         </div>
 
       {/* 2. INFO PRINCIPAL */}
     <div className="grow flex flex-col gap-1">
         <div className="flex items-center gap-3">
-            <h4 className="text-white font-medium text-base group-hover:text-orange-500 transition-colors">
+            <h4 className="text-white font-medium text-base lit:text-orange-500 transition-colors">
                 {title}
             </h4>
           {/* Badge de Estado */}
@@ -59,11 +67,11 @@ export default function CredentialItem({
     </div>
 
     {/* 4. ICONO DE ESTADO FINAL */}
-    <div className="text-white/20 group-hover:text-white transition-colors">
+    <div className="text-white/20 lit:text-white transition-colors">
         {status === "completed" ? (
             <FiCheckCircle
             size={22}
-            className="group-hover:text-green-400 transition-colors"/>
+            className="lit:text-green-400 transition-colors"/>
         ) : (
         <FiLoader size={22} className="animate-spin text-orange-500" />
         )}
