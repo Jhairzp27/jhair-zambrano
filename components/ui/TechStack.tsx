@@ -10,11 +10,12 @@ import { GROUPS, SKILLS, SYNAPSES, type Level, type Skill, type Vec3 } from "@/l
 const GROUP_NAMES = Object.keys(GROUPS);
 
 const DWELL_MS = 7000; // tiempo de lectura por grupo
-const TRAVEL_MS = 1200; // giro hacia la siguiente región
-const RESUME_MS = 3500; // espera tras interactuar antes de retomar el recorrido
+const RESUME_MS = 3500; // espera tras interactuar antes de retomar el giro y las tarjetas
 const FOV = 4.2;
-/** El recorrido mira cada región desde la derecha: el perfil lateral es lo que más se reconoce como cerebro. */
-const VIEW_BIAS = 0.9;
+/** Una vuelta completa cada ~70 s en promedio; la velocidad real ondula alrededor de este valor. */
+const SPIN_SPEED = (Math.PI * 2) / 70000;
+/** Inclinación base: el cerebro se mira un poco desde arriba. */
+const BASE_PITCH = -0.22;
 /** El nivel se lee por tamaño y brillo, como los nodos principales de Brain Atlas. */
 const NODE_PX: Record<Level, number> = { primary: 5.5, secondary: 4, learning: 3.2 };
 const GLOW: Record<Level, number> = { primary: 1, secondary: 0.7, learning: 0.5 };
@@ -23,8 +24,6 @@ const MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 const TAU = Math.PI * 2;
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
-/** Diferencia angular más corta, en (-π, π]. */
-const angleDiff = (to: number, from: number) => ((((to - from) % TAU) + TAU * 1.5) % TAU) - Math.PI;
 
 const SKILL = new Map(SKILLS.map((s) => [s.name, s]));
 const groupOf = (name: string) => SKILL.get(name)?.category ?? "";
@@ -187,22 +186,6 @@ function placeNodes(): Placed[] {
 const DUST = buildDust();
 const NODES = placeNodes();
 
-/** Hacia dónde gira el cerebro para dejar cada región al frente. */
-const VIEWS: Record<string, { yaw: number; pitch: number }> = Object.fromEntries(
-  GROUP_NAMES.map((g) => {
-    const [x, y, z] = GROUPS[g].center;
-    // Las regiones del hemisferio izquierdo (x < 0) se miran desde la izquierda.
-    const lateral = x + Math.sign(x || 1) * VIEW_BIAS;
-    return [
-      g,
-      {
-        yaw: Math.atan2(-lateral, z),
-        pitch: clamp(Math.atan2(y, Math.hypot(lateral, z)) * 0.55 - 0.2, -0.6, 0.35),
-      },
-    ];
-  }),
-);
-
 /* ============================== Utilidades ============================== */
 
 interface Rect {
@@ -253,14 +236,15 @@ export default function TechStack() {
 
   // Estado que lee el bucle de dibujo sin provocar renders.
   const tourRef = useRef({ index: 0, start: 0, holdUntil: 0 });
-  const viewRef = useRef({ ...VIEWS[GROUP_NAMES[0]] });
+  // Arranca de perfil (lo más reconocible) y quieto; acelera solo hasta su giro de crucero.
+  const viewRef = useRef({ yaw: -1.6, pitch: BASE_PITCH, speed: 0 });
   const selectedRef = useRef<string | null>(null);
   const cardHoverRef = useRef(false);
   const dragRef = useRef<{ x: number; y: number; moved: number } | null>(null);
   const hitRef = useRef<{ nodes: NodeHit[]; labels: (Rect & { name: string })[] }>({ nodes: [], labels: [] });
 
   /**
-   * Única fuente de verdad del grupo mostrado: mueve a la vez el giro, el brillo y las tarjetas.
+   * Única fuente de verdad del grupo mostrado: cambia a la vez el brillo y las tarjetas.
    * `restart` devuelve el tiempo de lectura completo aunque el grupo ya esté activo.
    */
   const goTo = useCallback((index: number, restart = false) => {
@@ -341,29 +325,37 @@ export default function TechStack() {
       const dt = Math.min(64, now - last);
       last = now;
 
-      /* 1. Recorrido: la lectura se congela mientras alguien interactúa */
-      const busy =
+      /* 1. Tarjetas: cambian de grupo cada DWELL_MS; la lectura se congela mientras alguien interactúa */
+      const reading =
         dragRef.current !== null || selectedRef.current !== null || cardHoverRef.current || now < tour.holdUntil;
-      if (busy) tour.start += dt;
-      else if (now - tour.start > TRAVEL_MS + DWELL_MS) goTo((tour.index + 1) % GROUP_NAMES.length);
+      if (reading) tour.start += dt;
+      else if (now - tour.start > DWELL_MS) goTo((tour.index + 1) % GROUP_NAMES.length);
 
       const bar = progressRef.current;
       if (bar) {
-        bar.style.transform = `scaleX(${clamp((now - tour.start - TRAVEL_MS) / DWELL_MS, 0, 1)})`;
-        bar.dataset.paused = String(busy);
+        bar.style.transform = `scaleX(${clamp((now - tour.start) / DWELL_MS, 0, 1)})`;
+        bar.dataset.paused = String(reading);
       }
-
       const active = GROUP_NAMES[tour.index];
+
+      /*
+       * 2. Giro orgánico de 360°, independiente de las tarjetas: la velocidad y la inclinación
+       *    ondulan con ondas lentas. Al tocar o arrastrar frena suave, se queda donde lo dejaron
+       *    y tras RESUME_MS vuelve a acelerar solo.
+       */
       const view = viewRef.current;
-      if (!busy) {
-        const target = VIEWS[active];
-        const ease = reduced ? 1 : 1 - Math.exp(-dt / 380);
-        view.yaw += angleDiff(target.yaw, view.yaw) * ease;
-        view.pitch += (target.pitch - view.pitch) * ease;
+      const held = dragRef.current !== null || selectedRef.current !== null || now < tour.holdUntil;
+      if (!reduced && !dragRef.current) {
+        const cruise = SPIN_SPEED * (1 + 0.35 * Math.sin(now / 7300) + 0.15 * Math.sin(now / 2300));
+        view.speed += ((held ? 0 : cruise) - view.speed) * (1 - Math.exp(-dt / 900));
+        view.yaw += view.speed * dt;
+        if (!held) {
+          const drift = BASE_PITCH + 0.12 * Math.sin(now / 9100) + 0.05 * Math.sin(now / 3100);
+          view.pitch += (drift - view.pitch) * (1 - Math.exp(-dt / 1400));
+        }
       }
-      const yaw = view.yaw + (busy || reduced ? 0 : Math.sin(now / 2600) * 0.07);
-      const cy = Math.cos(yaw);
-      const sy = Math.sin(yaw);
+      const cy = Math.cos(view.yaw);
+      const sy = Math.sin(view.yaw);
       const cp = Math.cos(view.pitch);
       const sp = Math.sin(view.pitch);
       const rotate = (x: number, y: number, z: number) => {
@@ -389,7 +381,7 @@ export default function TechStack() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, width, S.height);
 
-      /* 2. Brillo suave de la región activa, bajo el polvo */
+      /* 3. Brillo suave de la región activa, bajo el polvo */
       const group = GROUPS[active];
       const pc = project(...group.center);
       const glow = ctx.createRadialGradient(pc.x, pc.y, 0, pc.x, pc.y, S.scale * 0.65 * pc.d);
@@ -398,7 +390,7 @@ export default function TechStack() {
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, width, S.height);
 
-      /* 3. Polvo del cerebro, agrupado por brillo para pintarlo en pocas pasadas */
+      /* 4. Polvo del cerebro, agrupado por brillo para pintarlo en pocas pasadas */
       for (const bin of bins) bin.length = 0;
       for (let i = 0; i < DUST.length; i += S.compact ? DUST_STRIDE * 2 : DUST_STRIDE) {
         const p = project(DUST[i], DUST[i + 1], DUST[i + 2]);
@@ -422,14 +414,14 @@ export default function TechStack() {
         ctx.fill();
       });
 
-      /* 4. Posición de cada neurona en pantalla */
+      /* 5. Posición de cada neurona en pantalla */
       const screen = new Map(NODES.map((n) => [n.name, project(...n.p)]));
       const sel = selectedRef.current;
       const neighbors = sel ? NEIGHBORS.get(sel) : undefined;
       const isFocus = (name: string) =>
         sel ? name === sel || Boolean(neighbors?.has(name)) : groupOf(name) === active;
 
-      /* 5. Sinapsis: rectas dentro de la región, arcos con impulsos entre regiones */
+      /* 6. Sinapsis: rectas dentro de la región, arcos con impulsos entre regiones */
       const center = project(0, 0.05, 0.05);
       SYNAPSES.forEach(([a, b], idx) => {
         const pa = screen.get(a);
@@ -495,7 +487,7 @@ export default function TechStack() {
         }
       });
 
-      /* 6. Neuronas, de atrás hacia adelante. Nivel = tamaño y brillo */
+      /* 7. Neuronas, de atrás hacia adelante. Nivel = tamaño y brillo */
       const nodeHits: NodeHit[] = [];
       for (const n of [...NODES].sort((a, b) => screen.get(a.name)!.z - screen.get(b.name)!.z)) {
         const s = screen.get(n.name)!;
@@ -531,7 +523,7 @@ export default function TechStack() {
         nodeHits.push({ name: n.name, x: s.x, y: s.y, r });
       }
 
-      /* 7. Textos: nada se encima. Lo importante primero; lo demás solo si cabe */
+      /* 8. Textos: nada se encima. Lo importante primero; lo demás solo si cabe */
       const taken: Rect[] = [];
       const labels: (Rect & { name: string })[] = [];
       ctx.textBaseline = "middle";
@@ -642,9 +634,10 @@ export default function TechStack() {
         drag.x = e.clientX;
         drag.y = e.clientY;
         if (drag.moved > 6) {
-          // Se queda donde lo dejes; tras RESUME_MS vuelve a su recorrido.
+          // Se queda donde lo dejes; tras RESUME_MS retoma su giro.
           const view = viewRef.current;
           view.yaw += dx * 0.006;
+          view.speed = 0;
           if (e.pointerType === "mouse") view.pitch = clamp(view.pitch + dy * 0.004, -0.8, 0.6);
           if (canvas) canvas.style.cursor = "grabbing";
         }
@@ -769,7 +762,7 @@ export default function TechStack() {
             </div>
           </div>
 
-          {/* Pasar el mouse por las tarjetas pausa el recorrido para leer con calma. */}
+          {/* Pasar el mouse por las tarjetas pausa el cambio de grupo para leer con calma. */}
           <aside
             onPointerEnter={(e) => {
               if (e.pointerType === "mouse") cardHoverRef.current = true;
