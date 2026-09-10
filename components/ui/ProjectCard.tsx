@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FiGithub, FiExternalLink, FiPlay } from "react-icons/fi";
-import { useScrollActive } from "@/components/utils/useScrollActive";
+import { isScrollLitDevice as isTouch, useScrollActive } from "@/components/utils/useScrollActive";
 
 interface ProjectCardProps {
   title: string;
@@ -14,8 +14,6 @@ interface ProjectCardProps {
   videoSrc?: string;
   imageSrc?: string;
 }
-
-const isTouch = () => window.matchMedia("(hover: none)").matches;
 
 export default function ProjectCard({
   title,
