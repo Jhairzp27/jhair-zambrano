@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { FiSun, FiVolume2, FiVolumeX } from "react-icons/fi";
+import { useKeyboard } from "@/components/context/KeyboardContext";
 import { useSound } from "@/components/context/SoundContext";
 
 export default function SystemControls() {
@@ -9,18 +10,20 @@ export default function SystemControls() {
   const { isMuted, toggleMute } = useSound();
   const audioEnabled = !isMuted;
 
-  // 2. LÓGICA VISUAL DE RGB
-  const [rgbEnabled, setRgbEnabled] = useState(true);
+  // 2. RGB REAL: enciende/apaga las luces del modelo 3D vía KeyboardContext
+  const { lightsOn: rgbEnabled, toggleLights, syncFromRealKey } = useKeyboard();
 
+  // Si el usuario pulsa la tecla de verdad, la escena ya hace su efecto:
+  // aquí solo reflejamos el estado (sin volver a emitir la tecla).
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Backspace") setRgbEnabled(true);
-      if (event.key === "Enter") setRgbEnabled(false);
+      if (event.key === "Backspace") syncFromRealKey(true);
+      if (event.key === "Enter") syncFromRealKey(false);
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [syncFromRealKey]);
 
   return (
     <div className="flex flex-col items-center gap-4 select-none animate-in fade-in zoom-in duration-700">
@@ -68,7 +71,13 @@ export default function SystemControls() {
           {rgbEnabled ? "TO TURN OFF" : "TO TURN ON"}
         </span>
 
-        <div className="group relative">
+        <button
+          type="button"
+          onClick={toggleLights}
+          aria-pressed={rgbEnabled}
+          aria-label={rgbEnabled ? "Turn keyboard lights off" : "Turn keyboard lights on"}
+          className="group relative cursor-pointer"
+        >
           <div
             className={`absolute inset-0 bg-white/5 rounded-lg transform translate-y-1 ${
               rgbEnabled
@@ -77,11 +86,9 @@ export default function SystemControls() {
             }`}
           ></div>
 
-          <div
-            className={`relative flex items-center justify-center w-16 h-14 bg-linear-to-b from-white/10 to-white/5 border border-white/20 rounded-lg shadow-inner backdrop-blur-sm transition-transform active:translate-y-1 duration-100 ${"animate-pulse hover:animate-none cursor-pointer"}`}
-          >
+          <div className="relative flex items-center justify-center w-16 h-14 bg-linear-to-b from-white/10 to-white/5 border border-white/20 rounded-lg shadow-inner backdrop-blur-sm transition-transform active:translate-y-1 duration-100 group-hover:border-orange-500/40">
             <div className="flex flex-col items-center justify-center">
-              {/* Símbolo Gigante */}
+              {/* Símbolo Gigante: la tecla que la escena usa para encender (⌫) o apagar (↵) */}
               <span
                 className={`text-2xl font-bold mb-1 ${rgbEnabled ? "text-white" : "text-orange-500"}`}
               >
@@ -94,7 +101,7 @@ export default function SystemControls() {
               </span>
             </div>
           </div>
-        </div>
+        </button>
       </div>
     </div>
   );

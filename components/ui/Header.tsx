@@ -148,7 +148,7 @@ export default function Header() {
         {/* NAVEGACIÓN DESKTOP */}
         {/* hidden lg:flex (Se oculta en Móvil y Tablet, visible en Desktop) */}
         <nav className="hidden lg:flex items-center gap-8 lg:gap-12 absolute left-1/2 -translate-x-1/2">
-          {["About", "Stack", "Works"].map((item) => (
+          {["About", "Works", "Stack"].map((item) => (
             <a
               key={item}
               href={`#${item.toLowerCase()}`}
@@ -177,7 +177,7 @@ export default function Header() {
               <FiGithub />
             </a>
             <a
-              href="https://linkedin.com/in/gregoy-jhair-zambrano"
+              href="https://www.linkedin.com/in/gregoy-jhair-zambrano"
               target="_blank"
               rel="noopener noreferrer"
               className={socialIconClass}
@@ -202,7 +202,13 @@ export default function Header() {
             }`}
           />
 
-          <button
+          <a
+            href="#contact"
+            onClick={(e) => {
+              e.preventDefault();
+              setIsMobileMenuOpen(false);
+              document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+            }}
             className={`
               flex items-center justify-center
               text-white border border-white/20 rounded-full
@@ -215,7 +221,7 @@ export default function Header() {
             `}
           >
             {"Let's Talk"}
-          </button>
+          </a>
 
           {/* BOTÓN HAMBURGUESA */}
           <HamburgerButton
@@ -241,7 +247,7 @@ export default function Header() {
               variants={navListVariants}
               className="flex flex-col items-start gap-8 relative z-10"
             >
-              {["About", "Stack", "Works"].map((item) => (
+              {["About", "Works", "Stack"].map((item) => (
                 <motion.div variants={itemVariants} key={item}>
                   <a
                     href={`#${item.toLowerCase()}`}
@@ -274,7 +280,7 @@ export default function Header() {
                 <FiGithub />
               </a>
               <a
-                href="https://linkedin.com/in/gregoy-jhair-zambrano"
+                href="https://www.linkedin.com/in/gregoy-jhair-zambrano"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/60 hover:text-white active:text-orange-500 active:scale-90 transition-all text-2xl"
