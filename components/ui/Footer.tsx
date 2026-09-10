@@ -228,7 +228,7 @@ export default function Footer() {
   });
 
   return (
-    <footer className="relative w-full bg-black border-t border-white/10 overflow-hidden flex flex-col">
+    <footer id="contact" className="relative w-full bg-black border-t border-white/10 overflow-hidden flex flex-col">
       {/* LUCES DE FONDO */}
       <div className="absolute bottom-[-20%] left-[-10%] w-150 h-150 bg-[#0077c2]/10 blur-[150px] pointer-events-none rounded-full"></div>
       <div className="absolute bottom-[-20%] right-[-10%] w-150 h-150 bg-[#FF9248]/10 blur-[150px] pointer-events-none rounded-full"></div>
