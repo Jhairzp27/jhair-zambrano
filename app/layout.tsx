@@ -11,6 +11,9 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space
 export const metadata: Metadata = {
   title: "Jhair Zambrano | Software Engineer",
   description: "Portafolio profesional de ingeniería de software de Jhair Zambrano",
+  verification: {
+    google: "D49SZiQsKP5FlEuK9DlfzqgPU3sGXJemjaDwyIN-jc4",
+  },
 };
 
 export default function RootLayout({
